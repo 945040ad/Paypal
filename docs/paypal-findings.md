@@ -162,3 +162,12 @@ Command: `npm run purchase -- [productId] [quantity] [--observe] [--new-mandate]
 - `GET /v2/checkout/orders/{id}` returns `purchase_units[0].payee.email_address`, `merchant_id`, `custom_id` and
   `amount` with its breakdown, which is what the re-check compares. The capture echoes `custom_id`.
 - Void returned no body; full refund with `{}` returned a refund ID.
+
+## Phase 5: webhooks (sandbox, 2026-11-10 UTC)
+
+- A capture made from a local run (`3NT61042S4762943M`, 9.00 USD) reached the hosted app as
+  `PAYMENT.CAPTURE.COMPLETED`, event `WH-4UL20603RY495563E-2P388694EM401541N`, within about 30 seconds.
+  `POST /v1/notifications/verify-webhook-signature` returned `SUCCESS` when the body was built from the raw request text.
+- The same call with made-up signature headers returns a non-success status, and the route answers 400.
+- The hosted database is separate from the local one, so a purchase made locally shows up on the host as
+  `UNMATCHED_CAPTURE` (`NO_GATE_DECISION`). That is the intended behaviour for a capture the host never approved.
