@@ -10,7 +10,8 @@
     "test": "vitest run",
     "paypal:ping": "tsx --env-file-if-exists=.env.local scripts/paypal-ping.ts",
     "webhook:setup": "tsx --env-file-if-exists=.env.local scripts/webhook-setup.ts",
-    "purchase": "tsx --env-file-if-exists=.env.local scripts/purchase.ts"
+    "purchase": "tsx --env-file-if-exists=.env.local scripts/purchase.ts",
+    "agent": "tsx --env-file-if-exists=.env.local scripts/agent.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.114",

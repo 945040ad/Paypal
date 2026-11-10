@@ -70,6 +70,11 @@ CREATE TABLE IF NOT EXISTS paypal_request_ids (
   request_id TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+-- App settings, such as the gate mode.
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
 -- Webhook event IDs already processed; a repeat is ignored.
 CREATE TABLE IF NOT EXISTS webhook_events (
   event_id    TEXT PRIMARY KEY,

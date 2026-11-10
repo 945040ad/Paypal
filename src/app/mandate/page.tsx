@@ -46,6 +46,28 @@ export default function MandatePage() {
     validDays: "7",
   });
   const [result, setResult] = useState<Result>({ kind: "idle" });
+  const [sentence, setSentence] = useState("Keyboards and cables only, up to $40 per purchase and $100 in total. Ask me above $30. No more than 2 of anything.");
+  const [draft, setDraft] = useState<{ kind: "idle" | "working" | "done" } | { kind: "error"; message: string }>({ kind: "idle" });
+
+  /** The model drafts the fields; they only fill the form below, where the user reviews and edits them. */
+  async function draftFromSentence() {
+    setDraft({ kind: "working" });
+    try {
+      const { draft: d } = await postJson("/api/mandates/draft", { sentence });
+      setForm({
+        perPurchaseCap: (d.per_purchase_cap_cents / 100).toString(),
+        totalBudget: (d.total_budget_cents / 100).toString(),
+        approvalThreshold: (d.approval_threshold_cents / 100).toString(),
+        merchants: d.allowed_merchants.join(", "),
+        categories: d.allowed_categories.join(", "),
+        maxQuantity: String(d.max_quantity_per_item),
+        validDays: String(d.valid_days),
+      });
+      setDraft({ kind: "done" });
+    } catch (err) {
+      setDraft({ kind: "error", message: err instanceof Error ? err.message : String(err) });
+    }
+  }
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -93,7 +115,35 @@ export default function MandatePage() {
         never leaves it.
       </p>
 
-      <form onSubmit={signAndSave} className="mt-8 grid grid-cols-2 gap-4">
+      <section className="mt-8">
+        <label className="text-sm font-medium" htmlFor="sentence">
+          1. Describe your rules in plain words
+        </label>
+        <textarea id="sentence" name="sentence" rows={3} value={sentence} onChange={(e) => setSentence(e.target.value)} className={FIELD} />
+        <div className="mt-2 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={draftFromSentence}
+            disabled={draft.kind === "working" || !sentence.trim()}
+            className="rounded border border-zinc-400 px-4 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            {draft.kind === "working" ? "Drafting…" : "Draft the rules with AI"}
+          </button>
+          {draft.kind === "done" && (
+            <span data-testid="draft-done" className="text-sm text-emerald-700 dark:text-emerald-400">
+              Drafted. Check the fields below before you sign.
+            </span>
+          )}
+          {draft.kind === "error" && (
+            <span data-testid="draft-error" role="alert" className="text-sm text-red-700 dark:text-red-400">
+              {draft.message}
+            </span>
+          )}
+        </div>
+      </section>
+
+      <h2 className="mt-8 text-sm font-medium">2. Review the rules, then sign</h2>
+      <form onSubmit={signAndSave} className="mt-3 grid grid-cols-2 gap-4">
         <label className="text-sm font-medium">
           Per-purchase cap (USD)
           <input className={FIELD} name="perPurchaseCap" type="number" min="0.01" step="0.01" required value={form.perPurchaseCap} onChange={set("perPurchaseCap")} />

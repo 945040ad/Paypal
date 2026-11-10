@@ -88,3 +88,13 @@ export function submitSignedMandate(
 
   return { mandate, entry: store.immediate() };
 }
+
+/** The newest mandate for a user that is neither revoked nor expired, or null. */
+export function getLatestMandate(db: Db, userId: string, now: Date = new Date()): StoredMandate | null {
+  const rows = db.prepare("SELECT id FROM mandates WHERE user_id = ? AND revoked_at IS NULL ORDER BY created_at DESC").all(userId) as { id: string }[];
+  for (const { id } of rows) {
+    const stored = getMandate(db, id)!;
+    if (Date.parse(stored.mandate.expires_at) > now.getTime()) return stored;
+  }
+  return null;
+}
