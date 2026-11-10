@@ -29,6 +29,20 @@ CREATE TABLE IF NOT EXISTS mandates (
   created_at     TEXT NOT NULL,
   revoked_at     TEXT
 );
+-- One row per gate decision. status tracks the budget hold:
+-- BLOCKED (nothing held), AWAITING_APPROVAL, RESERVED, SPENT (all three count against the budget), RELEASED.
+CREATE TABLE IF NOT EXISTS gate_decisions (
+  intent_id   TEXT PRIMARY KEY,
+  mandate_id  TEXT NOT NULL,
+  decision    TEXT NOT NULL,
+  rule        TEXT,
+  mode        TEXT NOT NULL,
+  total_cents INTEGER NOT NULL,
+  status      TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS gate_decisions_mandate ON gate_decisions (mandate_id, status);
 `;
 
 /** Opens (and creates, if needed) the database at `path`. Use ":memory:" in tests. */
