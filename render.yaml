@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: system-audit
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: DATABASE_PATH
+        value: ./data/audit.db
+      - key: AI_MODEL
+        value: gemini-flash-latest
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: PAYPAL_MERCHANT_EMAIL
+        sync: false
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
