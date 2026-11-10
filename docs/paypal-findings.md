@@ -137,3 +137,28 @@ Case A took 44 minutes from the buyer opening the case to `RESOLVED`. Case B too
 - Ledger lookup: `disputed_transactions[0].custom` holds `mandate_id:intent_id`.
 - Opening disputes for the demo is a manual step in the buyer's Resolution Center.
 - Unauthorised-transaction disputes were not exercised; only item-not-received.
+
+## Phase 4: payment flow (sandbox, 2026-11-10 UTC)
+
+Command: `npm run purchase -- [productId] [quantity] [--observe] [--new-mandate] [--refund]`.
+
+| Run | Order | Authorization | Capture | Result |
+| --- | --- | --- | --- | --- |
+| 1. First purchase, buyer approves, vault requested | `5C651359AV1545924` | `8T328425DH833232C` | none | **VOIDED** by the re-check (payee mismatch, see below) |
+| 2. Saved PayPal, no buyer present | `5R801904SB554005J` | `6RX26793M3170941N` | `5LJ675062T815071M` | CAPTURED, 29.00 USD |
+| 3. Saved PayPal, then full refund | `4FP30572A88777347` | `1KS088664P912844N` | `6YK17107FB711121X` | REFUNDED, refund `4YC29806XT1357503` |
+
+- **The REST app's payee is the sandbox default business account**, `sb-cufup53822799@business.example.com`
+  (merchant `Q8AMAAA47MYEE`, "Test Store"), not the separately created `sb-gbef4753787824@business.example.com`.
+  Run 1's re-check caught this and voided. `PAYPAL_MERCHANT_EMAIL` must be the account the app is linked to.
+- **Vault works.** Creating the order with `payment_source.paypal.attributes.vault`
+  (`store_in_vault: ON_SUCCESS`, `usage_type: MERCHANT`, `customer_type: CONSUMER`) and authorizing after buyer approval
+  returned `payment_source.paypal.attributes.vault` = `{ id: "39l54937ns878884n", status: "VAULTED", customer: { id } }`
+  straight away. No webhook wait was needed.
+- **Paying with the vault ID needs nothing else.** `payment_source: { paypal: { vault_id } }` with intent `AUTHORIZE`
+  returned the order already holding an authorization; no `/authorize` call, no `stored_credential`, no buyer.
+- **Capture idempotency is real on Payments v2.** Repeating `POST /v2/payments/authorizations/{id}/capture` with the
+  same `PayPal-Request-Id` returned the same capture ID (`5LJ675062T815071M`), not a second capture.
+- `GET /v2/checkout/orders/{id}` returns `purchase_units[0].payee.email_address`, `merchant_id`, `custom_id` and
+  `amount` with its breakdown, which is what the re-check compares. The capture echoes `custom_id`.
+- Void returned no body; full refund with `{}` returned a refund ID.

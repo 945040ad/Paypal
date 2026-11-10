@@ -43,6 +43,40 @@ CREATE TABLE IF NOT EXISTS gate_decisions (
   updated_at  TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS gate_decisions_mandate ON gate_decisions (mandate_id, status);
+-- One row per purchase attempt that reached the gate; tracks where it is in the PayPal flow.
+CREATE TABLE IF NOT EXISTS purchases (
+  intent_id        TEXT PRIMARY KEY,
+  mandate_id       TEXT NOT NULL,
+  user_id          TEXT NOT NULL,
+  product_id       TEXT NOT NULL,
+  quantity         INTEGER NOT NULL,
+  total_cents      INTEGER NOT NULL,
+  currency         TEXT NOT NULL,
+  custom_id        TEXT NOT NULL,
+  status           TEXT NOT NULL,
+  order_id         TEXT,
+  approve_url      TEXT,
+  authorization_id TEXT,
+  capture_id       TEXT,
+  refund_id        TEXT,
+  created_at       TEXT NOT NULL,
+  updated_at       TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS purchases_order ON purchases (order_id);
+CREATE INDEX IF NOT EXISTS purchases_capture ON purchases (capture_id);
+-- The stored PayPal-Request-Id for each logical PayPal action, reused on retry.
+CREATE TABLE IF NOT EXISTS paypal_request_ids (
+  action     TEXT PRIMARY KEY,
+  request_id TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+-- The buyer's saved PayPal, used to pay with no buyer present.
+CREATE TABLE IF NOT EXISTS vault_tokens (
+  user_id     TEXT PRIMARY KEY,
+  vault_id    TEXT NOT NULL,
+  customer_id TEXT,
+  saved_at    TEXT NOT NULL
+);
 `;
 
 /** Opens (and creates, if needed) the database at `path`. Use ":memory:" in tests. */
