@@ -70,6 +70,37 @@ CREATE TABLE IF NOT EXISTS paypal_request_ids (
   request_id TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+-- Webhook event IDs already processed; a repeat is ignored.
+CREATE TABLE IF NOT EXISTS webhook_events (
+  event_id    TEXT PRIMARY KEY,
+  event_type  TEXT NOT NULL,
+  received_at TEXT NOT NULL
+);
+-- Captures already checked against the gate's decisions, so each is flagged at most once.
+CREATE TABLE IF NOT EXISTS capture_checks (
+  capture_id TEXT PRIMARY KEY,
+  matched    INTEGER NOT NULL,
+  reason     TEXT,
+  checked_at TEXT NOT NULL
+);
+-- The latest state of each PayPal dispute we know about.
+CREATE TABLE IF NOT EXISTS disputes (
+  dispute_id        TEXT PRIMARY KEY,
+  status            TEXT,
+  stage             TEXT,
+  reason            TEXT,
+  amount_cents      INTEGER,
+  currency          TEXT,
+  capture_id        TEXT,
+  custom            TEXT,
+  mandate_id        TEXT,
+  intent_id         TEXT,
+  outcome           TEXT,
+  resolved_recorded INTEGER NOT NULL DEFAULT 0,
+  detail_json       TEXT NOT NULL,
+  first_seen_at     TEXT NOT NULL,
+  updated_at        TEXT NOT NULL
+);
 -- The buyer's saved PayPal, used to pay with no buyer present.
 CREATE TABLE IF NOT EXISTS vault_tokens (
   user_id     TEXT PRIMARY KEY,
