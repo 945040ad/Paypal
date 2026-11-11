@@ -5,7 +5,10 @@
 import { generateText, isStepCount, type LanguageModel, type ToolSet } from "ai";
 import { withModelFallback } from "../ai/model";
 import { wrapUntrusted } from "../ai/untrusted";
+import { describeEntry, dollars } from "../ledger/describe";
 import type { LedgerEntry } from "../ledger/ledger";
+
+export { describeEntry };
 import type { Classification } from "./classifier";
 
 export const NOTES_MAX = 2000;
@@ -19,35 +22,6 @@ export function checkCitations(notes: string, validSeqs: number[]): { ok: boolea
   if (cited.length === 0) problems.push("Cites no ledger entry.");
   if (notes.length > NOTES_MAX) problems.push(`Longer than ${NOTES_MAX} characters.`);
   return { ok: problems.length === 0, cited, problems };
-}
-
-const dollars = (cents: unknown) => (typeof cents === "number" ? `$${(cents / 100).toFixed(2)}` : "an unknown amount");
-
-/** One line per ledger entry, for the model and for the PDF. */
-export function describeEntry(e: LedgerEntry): string {
-  const p = e.payload;
-  const detail: Record<string, string> = {
-    MANDATE_SIGNED: "the buyer signed the spending mandate",
-    INTENT: `agent proposed ${p.quantity} x ${p.product_name ?? p.product_id}, total ${dollars(p.total_cents)}`,
-    DECISION: `gate decision ${p.decision}${p.rule ? ` (rule ${p.rule})` : ""}, ${p.rules_passed} rules passed, total ${dollars(p.total_cents)}, mode ${p.mode}`,
-    VIOLATION: `would have been blocked on rule ${p.rule}; gate was in observe mode`,
-    APPROVAL: `the buyer approved ${dollars(p.total_cents)}`,
-    ORDER_CREATED: `PayPal order ${p.order_id}, ${dollars(p.total_cents)}`,
-    AUTHORIZED: `PayPal authorization ${p.authorization_id}`,
-    RECHECK_OK: "PayPal's order matched what the gate approved",
-    RECHECK_FAILED: "PayPal's order did not match what the gate approved",
-    CAPTURED: `PayPal capture ${p.capture_id}, ${dollars(p.total_cents)}`,
-    VOIDED: "authorization voided",
-    REFUNDED: `refund ${p.refund_id}`,
-    UNMATCHED_CAPTURE: `capture ${p.capture_id} did not match a gate decision (${p.reason})`,
-    DISPUTE_OPENED: `dispute ${p.dispute_id} opened, reason ${p.reason}`,
-    DISPUTE_ESCALATED: `dispute ${p.dispute_id} escalated to a PayPal claim`,
-    EVIDENCE_SUBMITTED: `evidence ${p.evidence_type} filed for ${p.dispute_id}`,
-    CLAIM_ACCEPTED: `claim accepted for ${p.dispute_id}`,
-    DISPUTE_RESOLVED: `dispute ${p.dispute_id} resolved, ${p.outcome}`,
-    WEBHOOK: `PayPal event ${p.event_type}`,
-  };
-  return `#${e.seq} ${e.ts} ${e.type}: ${detail[e.type] ?? ""}`;
 }
 
 type NotesInput = { classification: Classification; extract: LedgerEntry[]; disputeId: string; tracking?: { carrier: string; tracking_number: string } | null };

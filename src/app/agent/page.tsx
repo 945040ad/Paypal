@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AgentEvent } from "@/ai/agent";
+import { MODE_EVENT } from "@/components/ModeSwitch";
 import type { Mandate } from "@/mandate/schema";
 
 type StreamEvent = AgentEvent | { type: "start"; mandate_id: string; mode: string; defences: boolean };
@@ -42,7 +43,7 @@ function DecisionCard({ event, purchase, onApprove, busy }: { event: DecisionEve
   const approveUrl = purchase?.approve_url ?? event.approve_url;
   const captureId = purchase?.capture_id ?? event.capture_id;
   return (
-    <div data-testid="decision" data-decision={event.decision ?? "NONE"} data-rule={event.rule ?? ""} data-status={status} className={`rounded border-2 p-4 ${TONE[event.decision ?? ""] ?? "border-zinc-400"}`}>
+    <div data-testid="decision" data-decision={event.decision ?? "NONE"} data-rule={event.rule ?? ""} data-status={status} className={`rounded-lg border-2 bg-surface p-4 ${TONE[event.decision ?? ""] ?? "border-zinc-400"}`}>
       <p className="text-sm font-semibold">
         Gate: {event.decision ?? "not reached"}
         {event.rule && <span className="ml-2 font-mono text-xs">rule {event.rule}</span>}
@@ -55,12 +56,12 @@ function DecisionCard({ event, purchase, onApprove, busy }: { event: DecisionEve
       {captureId && <p className="mt-1 font-mono text-xs text-zinc-600 dark:text-zinc-400">PayPal capture {captureId}</p>}
       <p className="mt-1 font-mono text-xs text-zinc-500">{event.intent_id}</p>
       {status === "AWAITING_APPROVAL" && (
-        <button type="button" disabled={busy} onClick={() => onApprove(event.intent_id)} className="mt-3 rounded bg-amber-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
+        <button type="button" disabled={busy} onClick={() => onApprove(event.intent_id)} className="btn btn-warn mt-3">
           {busy ? "Approving…" : `Approve ${dollars(event.total_cents)}`}
         </button>
       )}
       {status === "NEEDS_BUYER" && approveUrl && (
-        <a href={approveUrl} className="mt-3 inline-block rounded bg-blue-700 px-3 py-1.5 text-sm font-medium text-white">
+        <a href={approveUrl} className="btn btn-primary mt-3">
           Approve in PayPal (sandbox buyer)
         </a>
       )}
@@ -99,16 +100,15 @@ export default function AgentPage() {
     else if (status) setNotice({ tone: "bad", text: `Purchase ${p.get("intent")} ended as ${status}.` });
     if (status || p.get("error")) window.history.replaceState(null, "", "/agent");
     void refresh();
+    // Stay in step with the Enforce / Observe switch in the header.
+    const onMode = (e: Event) => setMode((e as CustomEvent<Mode>).detail);
+    window.addEventListener(MODE_EVENT, onMode);
+    return () => window.removeEventListener(MODE_EVENT, onMode);
   }, [refresh]);
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: "nearest" });
   }, [events]);
-
-  async function changeMode(next: Mode) {
-    const res = await fetch("/api/mode", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: next }) });
-    if (res.ok) setMode(next);
-  }
 
   async function run(e: React.FormEvent) {
     e.preventDefault();
@@ -159,20 +159,21 @@ export default function AgentPage() {
   const m = mandate?.mandate;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Shopping agent</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+    <main className="page max-w-4xl">
+      <p className="eyebrow">Step 2</p>
+      <h1 className="page-title mt-1">Shopping agent</h1>
+      <p className="lede">
         The agent can search the store, read product pages and propose a purchase. It cannot pay. Every proposal is checked by the gate against
         your signed mandate.
       </p>
 
       {notice && (
-        <p data-testid="notice" role="status" className={`mt-6 rounded border p-3 text-sm ${notice.tone === "ok" ? "border-emerald-600 text-emerald-700 dark:text-emerald-400" : "border-red-600 text-red-700 dark:text-red-400"}`}>
+        <p data-testid="notice" role="status" className={`notice mt-6 ${notice.tone === "ok" ? "notice-ok" : "notice-bad"}`}>
           {notice.text}
         </p>
       )}
 
-      <section className="mt-6 rounded border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+      <section className="card mt-6 text-sm">
         {mandate === null ? (
           <p className="text-zinc-500">Loading the mandate…</p>
         ) : !m ? (
@@ -194,31 +195,22 @@ export default function AgentPage() {
             </p>
           </>
         )}
-        <div className="mt-3 flex items-center gap-2">
-          <span className="font-medium">Gate mode</span>
-          {(["ENFORCE", "OBSERVE"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              data-testid={`mode-${option}`}
-              aria-pressed={mode === option}
-              onClick={() => changeMode(option)}
-              className={`rounded border px-3 py-1 text-xs font-semibold ${mode === option ? (option === "ENFORCE" ? "border-emerald-700 bg-emerald-700 text-white" : "border-amber-600 bg-amber-600 text-white") : "border-zinc-300 dark:border-zinc-700"}`}
-            >
-              {option === "ENFORCE" ? "Enforce" : "Observe"}
-            </button>
-          ))}
-          <span className="text-xs text-zinc-500">{mode === "OBSERVE" ? "The gate only records; it does not stop payments." : "The gate stops anything outside the mandate."}</span>
-        </div>
+        <p data-testid="agent-mode" className="mt-3 text-sm">
+          <span className="font-semibold">Gate mode: {mode === null ? "loading…" : mode === "OBSERVE" ? "Observe" : "Enforce"}.</span>{" "}
+          <span className="text-muted">
+            {mode === "OBSERVE" ? "The gate only records; it does not stop payments." : "The gate stops anything outside the mandate."} Change it with the switch
+            at the top of the page.
+          </span>
+        </p>
       </section>
 
       <form onSubmit={run} className="mt-6">
         <label className="text-sm font-medium" htmlFor="task">
           What should the agent buy?
         </label>
-        <textarea id="task" name="task" rows={2} required value={task} onChange={(e) => setTask(e.target.value)} className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900" />
+        <textarea id="task" name="task" rows={2} required value={task} onChange={(e) => setTask(e.target.value)} className="field" />
         <div className="mt-2 flex flex-wrap items-center gap-4">
-          <button type="submit" disabled={running || !m} className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900">
+          <button type="submit" disabled={running || !m} className="btn btn-primary">
             {running ? "Agent is working…" : "Run agent"}
           </button>
           <label className="flex items-center gap-2 text-sm">
@@ -259,18 +251,22 @@ export default function AgentPage() {
           }
           if (event.type === "text") {
             return (
-              <p key={i} data-testid="agent-text" className="rounded bg-zinc-100 p-3 text-sm dark:bg-zinc-900">
+              <p key={i} data-testid="agent-text" className="card text-sm">
                 <span className="font-medium">Agent:</span> {event.text}
               </p>
             );
           }
           return (
-            <p key={i} data-testid="agent-error" role="alert" className="rounded border border-red-600 p-3 text-sm text-red-700 dark:text-red-400">
+            <p key={i} data-testid="agent-error" role="alert" className="notice notice-bad">
               {event.message}
             </p>
           );
         })}
-        {running && <p className="text-sm text-zinc-500">Working…</p>}
+        {running && (
+          <p className="flex items-center gap-2 text-sm text-muted">
+            <span className="skeleton inline-block h-3 w-24" /> The agent is working. Each tool call appears here as it happens.
+          </p>
+        )}
         <div ref={bottom} />
       </section>
     </main>

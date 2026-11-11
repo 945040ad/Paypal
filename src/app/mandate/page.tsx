@@ -33,7 +33,7 @@ async function postJson(url: string, body: unknown) {
   return json;
 }
 
-const FIELD = "mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900";
+const FIELD = "field";
 
 export default function MandatePage() {
   const [form, setForm] = useState({
@@ -108,9 +108,10 @@ export default function MandatePage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Mandate</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+    <main className="page max-w-3xl">
+      <p className="eyebrow">Step 1</p>
+      <h1 className="page-title mt-1">Mandate</h1>
+      <p className="lede">
         Set the rules your shopping agent must follow, then sign them. The signing key is created in this browser and
         never leaves it.
       </p>
@@ -125,17 +126,17 @@ export default function MandatePage() {
             type="button"
             onClick={draftFromSentence}
             disabled={draft.kind === "working" || !sentence.trim()}
-            className="rounded border border-zinc-400 px-4 py-2 text-sm font-medium disabled:opacity-50"
+            className="btn"
           >
             {draft.kind === "working" ? "Drafting…" : "Draft the rules with AI"}
           </button>
           {draft.kind === "done" && (
-            <span data-testid="draft-done" className="text-sm text-emerald-700 dark:text-emerald-400">
+            <span data-testid="draft-done" className="text-sm text-ok">
               Drafted. Check the fields below before you sign.
             </span>
           )}
           {draft.kind === "error" && (
-            <span data-testid="draft-error" role="alert" className="text-sm text-red-700 dark:text-red-400">
+            <span data-testid="draft-error" role="alert" className="text-sm text-bad">
               {draft.message}
             </span>
           )}
@@ -177,7 +178,7 @@ export default function MandatePage() {
           <button
             type="submit"
             disabled={result.kind === "working"}
-            className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="btn btn-primary"
           >
             {result.kind === "working" ? `${result.step}…` : "Sign and save"}
           </button>
@@ -185,8 +186,11 @@ export default function MandatePage() {
       </form>
 
       {result.kind === "done" && (
-        <section data-testid="mandate-saved" className="mt-8 rounded border border-emerald-600 p-4 text-sm">
-          <p className="font-medium text-emerald-700 dark:text-emerald-400">Mandate signed and verified by the server.</p>
+        <section data-testid="mandate-saved" className="notice notice-ok mt-8">
+          <p className="font-semibold text-ok">Mandate signed and verified by the server. It is now entry #{result.seq} in the ledger.</p>
+          <p className="mt-1">
+            Next: <a href="/agent" className="font-semibold underline">let the agent shop</a>.
+          </p>
           <dl className="mt-3 grid grid-cols-[8rem_1fr] gap-y-1 font-mono text-xs">
             <dt>Mandate</dt>
             <dd data-testid="mandate-id">{result.mandateId}</dd>
@@ -200,7 +204,7 @@ export default function MandatePage() {
         </section>
       )}
       {result.kind === "error" && (
-        <p data-testid="mandate-error" role="alert" className="mt-8 rounded border border-red-600 p-4 text-sm text-red-700 dark:text-red-400">
+        <p data-testid="mandate-error" role="alert" className="notice notice-bad mt-8">
           Could not save the mandate: {result.message}
         </p>
       )}

@@ -38,7 +38,26 @@ const BADGE: Record<Classification, { label: string; tone: string }> = {
   UNKNOWN: { label: "Needs a person", tone: "bg-zinc-600 text-white" },
 };
 
-const BUTTON = "rounded px-4 py-2 text-sm font-medium disabled:opacity-50";
+const BUTTON = "btn";
+
+/** One sentence telling a first-time user what to do next with this dispute. */
+function nextStep(d: Detail): string | null {
+  const can = (a: string) => d.actions.includes(a);
+  if (d.status === "RESOLVED") return null;
+  if (d.classification === "VIOLATION") {
+    return can("accept_claim")
+      ? "The ledger shows the agent broke the mandate, so the buyer is right. Accept the claim: PayPal refunds the buyer and closes the case within a few minutes."
+      : null;
+  }
+  if (d.classification === "UNKNOWN") return "The ledger has no clear answer for this payment. A person has to decide what to do.";
+  if (can("adjudicate")) return "Step 4 of 4. PayPal has the evidence and would now review it. The sandbox has no reviewer, so simulate the decision below.";
+  if (d.stage === "CHARGEBACK" && can("provide_evidence")) {
+    return "Step 3 of 4. The case is now a PayPal claim and PayPal asks for evidence again. File it: this time the signed mandate goes in as the main document.";
+  }
+  if (can("provide_evidence") && d.evidence_type) return "Step 1 of 4. The ledger shows this purchase was inside the mandate. File the evidence PayPal has asked for.";
+  if (can("escalate")) return "Step 2 of 4. The buyer has your evidence. Ask PayPal to decide: this turns the inquiry into a claim that PayPal rules on.";
+  return null;
+}
 
 async function call(url: string, init?: RequestInit) {
   const res = await fetch(url, init);
@@ -135,31 +154,47 @@ export default function DisputesPage() {
   const resolved = detail?.status === "RESOLVED";
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10">
+    <main className="page">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Dispute desk</h1>
-          <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="eyebrow">Step 4</p>
+          <h1 className="page-title mt-1">Dispute desk</h1>
+          <p className="lede">
             When a buyer disputes a payment, the ledger shows whether the purchase was inside the signed mandate. If it was, file the proof. If the
             agent broke the rules, refund without argument.
           </p>
         </div>
-        <button type="button" onClick={sync} disabled={busy !== null} className={`${BUTTON} border border-zinc-400`}>
+        <button type="button" onClick={sync} disabled={busy !== null} className={BUTTON}>
           {busy === "sync" ? "Syncing…" : "Sync from PayPal"}
         </button>
       </div>
 
       {notice && (
-        <p data-testid="notice" role="status" className={`mt-6 rounded border p-3 text-sm ${notice.tone === "ok" ? "border-emerald-600 text-emerald-700 dark:text-emerald-400" : "border-red-600 text-red-700 dark:text-red-400"}`}>
+        <p data-testid="notice" role="status" className={`notice mt-6 ${notice.tone === "ok" ? "notice-ok" : "notice-bad"}`}>
           {notice.text}
         </p>
       )}
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[20rem_1fr]">
         <section aria-label="Disputes">
-          {rows === null && <p className="text-sm text-zinc-500">Loading disputes…</p>}
+          {rows === null && (
+            <div className="space-y-2" aria-busy="true" aria-label="Loading disputes">
+              <div className="skeleton h-20" />
+              <div className="skeleton h-20" />
+            </div>
+          )}
           {rows?.length === 0 && (
-            <p className="text-sm text-zinc-500">No disputes yet. When a buyer opens one in PayPal it appears here within a few minutes; use Sync from PayPal to check now.</p>
+            <div className="card text-sm">
+              <p className="font-semibold">No disputes yet.</p>
+              <p className="mt-2 text-muted">To try the desk, open one as the sandbox buyer:</p>
+              <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
+                <li>Buy something on the Agent page.</li>
+                <li>Log in to sandbox.paypal.com with the sandbox buyer account.</li>
+                <li>Open Activity, choose the payment to Test Store, and click Report a problem.</li>
+                <li>Choose &ldquo;I didn&apos;t receive an item I purchased&rdquo; and submit.</li>
+                <li>Wait about five minutes, then press Sync from PayPal.</li>
+              </ol>
+            </div>
           )}
           <ul className="space-y-2">
             {rows?.map((r) => (
@@ -169,7 +204,7 @@ export default function DisputesPage() {
                   data-testid="dispute-row"
                   data-id={r.dispute_id}
                   onClick={() => open(r.dispute_id)}
-                  className={`w-full rounded border p-3 text-left text-sm ${selected === r.dispute_id ? "border-zinc-900 dark:border-zinc-100" : "border-zinc-200 dark:border-zinc-800"}`}
+                  className={`w-full rounded-lg border bg-surface p-3 text-left text-sm ${selected === r.dispute_id ? "border-foreground shadow-[inset_4px_0_0_var(--accent)]" : "border-line hover:border-foreground"}`}
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs">{r.dispute_id}</span>
@@ -187,7 +222,13 @@ export default function DisputesPage() {
 
         <section aria-label="Dispute detail" aria-live="polite">
           {!selected && rows !== null && rows.length > 0 && <p className="text-sm text-zinc-500">Choose a dispute to see what the ledger says about it.</p>}
-          {selected && loadingDetail && !detail && <p className="text-sm text-zinc-500">Asking PayPal for the latest state of {selected}…</p>}
+          {selected && loadingDetail && !detail && (
+            <div aria-busy="true">
+              <p className="text-sm text-muted">Asking PayPal for the latest state of {selected}…</p>
+              <div className="skeleton mt-3 h-24" />
+              <div className="skeleton mt-3 h-40" />
+            </div>
+          )}
           {detail && (
             <div data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""}>
               <h2 className="font-mono text-lg">{detail.dispute_id}</h2>
@@ -196,26 +237,32 @@ export default function DisputesPage() {
                 {detail.outcome && ` Outcome: ${words(detail.outcome)}.`}
               </p>
 
-              <div className={`mt-4 rounded border-2 p-4 ${detail.classification === "IN_MANDATE" ? "border-emerald-600" : detail.classification === "VIOLATION" ? "border-red-600" : "border-zinc-400"}`}>
+              <div className={`mt-4 rounded-lg border-2 bg-surface p-4 ${detail.classification === "IN_MANDATE" ? "border-ok" : detail.classification === "VIOLATION" ? "border-bad" : "border-zinc-400"}`}>
                 <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${BADGE[detail.classification].tone}`}>{BADGE[detail.classification].label}</span>
                 <p className="mt-2 text-sm">{detail.classification_reason}</p>
                 <p className="mt-1 text-xs text-zinc-500">Decided by code from the ledger. No AI model takes part in this decision.</p>
               </div>
 
+              {nextStep(detail) && (
+                <p data-testid="next-step" className="notice notice-warn mt-4">
+                  <span className="font-semibold">What to do now.</span> {nextStep(detail)}
+                </p>
+              )}
+
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                {resolved && <p className="text-sm font-medium">This dispute is closed.</p>}
+                {resolved && <p className="text-sm font-medium">This dispute is closed. Nothing more to do.</p>}
                 {!resolved && detail.classification !== "VIOLATION" && can("provide_evidence") && detail.evidence_type && (
-                  <button type="button" data-testid="file-evidence" disabled={busy !== null} onClick={() => act("file-evidence", "Evidence filed with PayPal and recorded in the ledger.")} className={`${BUTTON} bg-emerald-700 text-white`}>
+                  <button type="button" data-testid="file-evidence" disabled={busy !== null} onClick={() => act("file-evidence", "Evidence filed with PayPal and recorded in the ledger.")} className={`${BUTTON} btn-ok`}>
                     {busy === "file-evidence" ? "Filing…" : "File evidence"}
                   </button>
                 )}
                 {!resolved && detail.classification !== "IN_MANDATE" && can("accept_claim") && (
-                  <button type="button" data-testid="accept-claim" disabled={busy !== null} onClick={() => act("accept-claim", "Claim accepted. PayPal is refunding the buyer in full.")} className={`${BUTTON} bg-red-700 text-white`}>
+                  <button type="button" data-testid="accept-claim" disabled={busy !== null} onClick={() => act("accept-claim", "Claim accepted. PayPal is refunding the buyer in full.")} className={`${BUTTON} btn-bad`}>
                     {busy === "accept-claim" ? "Accepting…" : "Accept claim and refund"}
                   </button>
                 )}
                 {!resolved && detail.classification !== "VIOLATION" && can("escalate") && (
-                  <button type="button" data-testid="escalate" disabled={busy !== null} onClick={() => act("escalate", "Escalated to a PayPal claim. PayPal will ask for evidence in a few minutes.")} className={`${BUTTON} border border-zinc-400`}>
+                  <button type="button" data-testid="escalate" disabled={busy !== null} onClick={() => act("escalate", "Escalated to a PayPal claim. PayPal will ask for evidence in a few minutes.")} className={BUTTON}>
                     {busy === "escalate" ? "Escalating…" : "Ask PayPal to decide (escalate)"}
                   </button>
                 )}
@@ -223,14 +270,14 @@ export default function DisputesPage() {
               </div>
 
               {!resolved && can("adjudicate") && (
-                <div className="mt-4 rounded border border-dashed border-amber-500 p-4">
-                  <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Simulate PayPal&apos;s decision (sandbox only)</p>
+                <div className="mt-4 rounded-lg border border-dashed border-warn p-4">
+                  <p className="text-sm font-semibold text-warn">Simulate PayPal&apos;s decision (sandbox only)</p>
                   <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">In real life PayPal reviews the evidence and decides. The sandbox has no reviewer, so this stands in for one.</p>
                   <div className="mt-3 flex gap-3">
-                    <button type="button" data-testid="adjudicate-seller" disabled={busy !== null} onClick={() => act("adjudicate", "PayPal's decision was simulated: for the seller. It takes a few minutes to show as resolved.", { outcome: "SELLER_FAVOR" })} className={`${BUTTON} border border-amber-600`}>
+                    <button type="button" data-testid="adjudicate-seller" disabled={busy !== null} onClick={() => act("adjudicate", "PayPal's decision was simulated: for the seller. It takes a few minutes to show as resolved.", { outcome: "SELLER_FAVOR" })} className={`${BUTTON} btn-warn`}>
                       Decide for the seller
                     </button>
-                    <button type="button" disabled={busy !== null} onClick={() => act("adjudicate", "PayPal's decision was simulated: for the buyer. It takes a few minutes to show as resolved.", { outcome: "BUYER_FAVOR" })} className={`${BUTTON} border border-amber-600`}>
+                    <button type="button" disabled={busy !== null} onClick={() => act("adjudicate", "PayPal's decision was simulated: for the buyer. It takes a few minutes to show as resolved.", { outcome: "BUYER_FAVOR" })} className={`${BUTTON} btn-warn`}>
                       Decide for the buyer
                     </button>
                   </div>
@@ -246,7 +293,7 @@ export default function DisputesPage() {
                       : "Notes from the fixed template, built from ledger facts only."}
                     {detail.draft.problems.length > 0 && ` The model's draft was not used: ${detail.draft.problems.join(" ")}`}
                   </p>
-                  <p data-testid="draft-notes" className="mt-2 whitespace-pre-wrap rounded bg-zinc-100 p-3 text-sm dark:bg-zinc-900">{detail.draft.notes}</p>
+                  <p data-testid="draft-notes" className="card mt-2 whitespace-pre-wrap text-sm">{detail.draft.notes}</p>
                 </div>
               )}
 
@@ -258,7 +305,7 @@ export default function DisputesPage() {
                       Open in a new tab
                     </a>
                   </div>
-                  <iframe title={`Evidence PDF for ${detail.dispute_id}`} src={`/api/disputes/${detail.dispute_id}/evidence#toolbar=0`} className="mt-2 h-96 w-full rounded border border-zinc-200 dark:border-zinc-800" />
+                  <iframe title={`Evidence PDF for ${detail.dispute_id}`} src={`/api/disputes/${detail.dispute_id}/evidence#toolbar=0`} className="mt-2 h-96 w-full rounded-lg border border-line bg-surface" />
                 </div>
               )}
 
