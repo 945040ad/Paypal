@@ -157,7 +157,7 @@ export default function AgentPage() {
   }, [refresh]);
 
   useEffect(() => {
-    bottom.current?.scrollIntoView({ block: "nearest" });
+    bottom.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [events]);
 
   async function run(e: React.FormEvent) {
