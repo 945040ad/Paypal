@@ -8,7 +8,7 @@ type Export = { length: number; head_hash: string; entries: LedgerEntry[] };
 type Notice = { tone: "ok" | "bad" | "warn"; text: string } | null;
 
 const FAMILY: Record<string, { label: string; chip: string; dot: string }> = {
-  mandate: { label: "Mandate", chip: "bg-[#16161a] text-white", dot: "bg-[#16161a]" },
+  mandate: { label: "Mandate", chip: "bg-foreground text-white", dot: "bg-foreground" },
   gate: { label: "Gate", chip: "bg-sky-100 text-sky-900", dot: "bg-sky-600" },
   paypal: { label: "PayPal", chip: "bg-indigo-100 text-indigo-900", dot: "bg-indigo-600" },
   dispute: { label: "Dispute", chip: "bg-amber-100 text-amber-900", dot: "bg-amber-600" },
@@ -132,19 +132,21 @@ export default function LedgerPage() {
             </div>
 
             {verify?.ok && (
-              <p data-testid="verify-result" data-ok="true" role="status" className="mt-4 rounded-md bg-emerald-700 px-4 py-3 text-base font-semibold text-white">
+              <p data-testid="verify-result" data-ok="true" role="status" className="rise mt-5 flex items-center gap-3 rounded-xl bg-ok px-5 py-3.5 text-base font-semibold text-white shadow-sm">
+                <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm">✓</span>
                 Chain verified. All {verify.length} entries match their hashes and link to the one before.
               </p>
             )}
             {verify && !verify.ok && (
-              <p data-testid="verify-result" data-ok="false" role="alert" className="mt-4 rounded-md bg-red-700 px-4 py-3 text-base font-semibold text-white">
+              <p data-testid="verify-result" data-ok="false" role="alert" className="rise mt-5 flex items-center gap-3 rounded-xl bg-bad px-5 py-3.5 text-base font-semibold text-white shadow-sm">
+                <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm">!</span>
                 Chain broken at entry #{verify.first_bad_seq}. {verify.reason} Nothing from that entry onward can be trusted.
               </p>
             )}
           </section>
 
-          <section className="mt-4 rounded-lg border border-dashed border-warn p-5">
-            <p className="eyebrow !text-warn">Demo only</p>
+          <section className="mt-4 rounded-[0.875rem] border border-dashed border-amber-400 bg-warn-soft p-5">
+            <p className="badge badge-warn">Demo only</p>
             <div className="mt-1 flex flex-wrap items-center justify-between gap-4">
               <p className="max-w-xl text-sm text-muted">
                 Play the attacker: change one stored entry directly in the database, behind the ledger&apos;s back, then verify. Reset puts the entry
@@ -173,7 +175,7 @@ export default function LedgerPage() {
               <h2 className="text-base font-semibold">Entries, newest first</h2>
               <ul className="flex flex-wrap gap-2 text-xs">
                 {Object.entries(FAMILY).map(([key, f]) => (
-                  <li key={key} className={`rounded px-2 py-0.5 font-medium ${f.chip}`}>
+                  <li key={key} className={`rounded-full px-2.5 py-0.5 font-medium ${f.chip}`}>
                     {f.label}
                   </li>
                 ))}
@@ -186,7 +188,7 @@ export default function LedgerPage() {
                 follows.
               </p>
             ) : (
-              <ol className="mt-4 border-l-2 border-line pl-0">
+              <ol className="card mt-4 !p-0 [&>li+li]:border-t [&>li+li]:border-t-line">
                 {newestFirst.map((e) => {
                   const f = FAMILY[familyOf(e.type)];
                   const broken = badSeq !== null && e.seq === badSeq;
@@ -197,12 +199,12 @@ export default function LedgerPage() {
                       data-testid="entry"
                       data-seq={e.seq}
                       data-broken={broken}
-                      className={`relative -ml-[2px] border-l-2 py-2.5 pl-6 pr-3 ${broken ? "border-red-600 bg-red-50" : "border-transparent"} ${untrusted ? "opacity-50" : ""}`}
+                      className={`relative py-3 pl-10 pr-5 first:rounded-t-[0.875rem] last:rounded-b-[0.875rem] ${broken ? "bg-bad-soft" : ""} ${untrusted ? "opacity-50" : ""}`}
                     >
-                      <span aria-hidden="true" className={`absolute -left-[5px] top-4 h-2 w-2 rounded-full ${broken ? "bg-red-600" : f.dot}`} />
+                      <span aria-hidden="true" className={`absolute left-4 top-[1.15rem] h-2.5 w-2.5 rounded-full ${broken ? "bg-bad" : f.dot}`} />
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="font-mono text-sm font-semibold">#{e.seq}</span>
-                        <span className={`rounded px-1.5 py-0.5 font-mono text-[0.7rem] font-medium ${f.chip}`}>{e.type}</span>
+                        <span className={`rounded-full px-2 py-0.5 font-mono text-[0.7rem] font-medium ${f.chip}`}>{e.type}</span>
                         <span className="font-mono text-xs text-muted">{time(e.ts)}</span>
                         {broken && <span className="text-xs font-semibold text-bad">does not match its hash</span>}
                         {untrusted && <span className="text-xs text-muted">after the break</span>}

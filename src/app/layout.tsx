@@ -25,24 +25,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <header className="relative z-10 bg-[#16161a] text-white">
-          <div className="mx-auto flex w-full max-w-[68rem] flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3">
-            <Link href="/" className="font-mono text-base font-semibold tracking-tight">
-              <span className="text-orange-500">{"//"}</span>VERDICT
+        <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
+          <div className="mx-auto flex w-full max-w-[68rem] flex-wrap items-center gap-x-5 gap-y-2 px-6 py-2.5">
+            <Link href="/" className="mr-1 font-mono text-base font-bold tracking-tight">
+              <span className="text-accent">{"//"}</span>VERDICT
             </Link>
-            <nav aria-label="Main" className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <nav aria-label="Main" className="flex flex-wrap items-center gap-1">
               <Suspense>
                 <NavLinks />
               </Suspense>
             </nav>
-            <div className="ml-auto flex items-center gap-4">
+            <div className="ml-auto flex items-center gap-3">
               <ModeSwitch />
-              <span className="rounded border border-orange-500 px-2 py-0.5 font-mono text-[0.7rem] uppercase tracking-[0.1em] text-orange-400">PayPal sandbox only</span>
+              <span className="badge badge-accent" title="No real money moves and no real goods are sold.">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
+                PayPal sandbox
+              </span>
             </div>
           </div>
         </header>
-        <div className="flex-1 pt-6">{children}</div>
-        <footer className="border-t border-line px-6 py-4 text-center text-xs text-muted">
+        <div className="flex-1 pt-4">{children}</div>
+        <footer className="border-t border-line px-6 py-5 text-center text-xs text-muted">
           Demo on the PayPal sandbox. No real money moves and no real goods are sold.
         </footer>
       </body>

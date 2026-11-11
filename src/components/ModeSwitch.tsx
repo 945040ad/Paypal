@@ -52,7 +52,7 @@ export function ModeSwitch() {
       data-testid={`mode-${value}`}
       disabled={state === "loading" || state === "saving"}
       onClick={() => change(value)}
-      className={`px-4 py-1.5 text-sm font-semibold transition-colors disabled:cursor-wait ${mode === value ? activeClass : "bg-transparent text-zinc-300 hover:text-white"}`}
+      className={`rounded-full px-3.5 py-1 text-sm font-semibold transition-colors disabled:cursor-wait ${mode === value ? activeClass : "bg-transparent text-muted hover:text-foreground"}`}
     >
       {label}
     </button>
@@ -60,21 +60,23 @@ export function ModeSwitch() {
 
   return (
     <>
-      <div className="flex items-center gap-3">
-        <span className="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-zinc-400">Gate</span>
-        <div role="radiogroup" aria-label="Gate mode" className="flex overflow-hidden rounded-md border border-zinc-500">
-          {option("ENFORCE", "Enforce", "bg-emerald-600 text-white")}
-          {option("OBSERVE", "Observe", "bg-amber-500 text-black")}
+      <div className="flex items-center gap-2.5">
+        <span className="text-xs font-medium text-muted" title="Enforce stops anything outside your rules. Observe only records.">
+          Gate
+        </span>
+        <div role="radiogroup" aria-label="Gate mode" className="flex rounded-full border border-line bg-surface-2 p-0.5">
+          {option("ENFORCE", "Enforce", "bg-ok text-white shadow-sm")}
+          {option("OBSERVE", "Observe", "bg-amber-400 text-black shadow-sm")}
         </div>
-        {state === "loading" && <span className="text-xs text-zinc-400">Loading…</span>}
+        {state === "loading" && <span className="text-xs text-muted">Loading…</span>}
         {state === "error" && (
-          <span role="alert" className="text-xs text-red-300">
+          <span role="alert" className="text-xs text-bad">
             Could not read or change the mode. Reload.
           </span>
         )}
       </div>
       {mode === "OBSERVE" && (
-        <div data-testid="observe-banner" role="status" className="absolute inset-x-0 top-full bg-amber-500 px-6 py-1.5 text-center text-sm font-semibold text-black">
+        <div data-testid="observe-banner" role="status" className="absolute inset-x-0 top-full bg-amber-400 px-6 py-1.5 text-center text-sm font-semibold text-black">
           Observe mode: the gate records what it would have decided but does not stop any payment.
         </div>
       )}

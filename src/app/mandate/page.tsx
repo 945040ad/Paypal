@@ -35,6 +35,13 @@ async function postJson(url: string, body: unknown) {
 
 const FIELD = "field";
 
+/** Starting points for the plain-words box, so nobody faces an empty field. */
+const EXAMPLES = [
+  { label: "Careful", text: "Cables only. Up to $15 per purchase and $30 in total. Ask me above $10. Only 1 of anything." },
+  { label: "Everyday", text: "Keyboards and cables only, up to $40 per purchase and $100 in total. Ask me above $30. No more than 2 of anything." },
+  { label: "Generous", text: "Keyboards, cables and gift cards. Up to $100 per purchase and $300 in total. Ask me above $80. Up to 3 of anything." },
+];
+
 export default function MandatePage() {
   const [form, setForm] = useState({
     perPurchaseCap: "40",
@@ -116,17 +123,30 @@ export default function MandatePage() {
         never leaves it.
       </p>
 
-      <section className="mt-8">
-        <label className="text-sm font-medium" htmlFor="sentence">
-          1. Describe your rules in plain words
+      <section className="card mt-8">
+        <label className="flex items-center gap-3 text-base font-semibold" htmlFor="sentence">
+          <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-sm text-white">
+            1
+          </span>
+          <span>
+            <span className="sr-only">1. </span>Describe your rules in plain words
+          </span>
         </label>
-        <textarea id="sentence" name="sentence" rows={3} value={sentence} onChange={(e) => setSentence(e.target.value)} className={FIELD} />
-        <div className="mt-2 flex items-center gap-3">
+        <textarea id="sentence" name="sentence" rows={3} value={sentence} onChange={(e) => setSentence(e.target.value)} className={`${FIELD} mt-3 text-base`} />
+        <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Example rules">
+          <span className="text-xs text-muted">Or start from:</span>
+          {EXAMPLES.map((example) => (
+            <button key={example.label} type="button" onClick={() => setSentence(example.text)} className="chip">
+              {example.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={draftFromSentence}
             disabled={draft.kind === "working" || !sentence.trim()}
-            className="btn"
+            className="btn btn-accent"
           >
             {draft.kind === "working" ? "Drafting…" : "Draft the rules with AI"}
           </button>
@@ -143,8 +163,22 @@ export default function MandatePage() {
         </div>
       </section>
 
-      <h2 className="mt-8 text-sm font-medium">2. Review the rules, then sign</h2>
-      <form onSubmit={signAndSave} className="mt-3 grid grid-cols-2 gap-4">
+      <form onSubmit={signAndSave} className="card mt-5 grid grid-cols-2 gap-4">
+        <h2 className="col-span-2 flex items-center gap-3 text-base font-semibold">
+          <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-sm text-white">
+            2
+          </span>
+          <span>
+            <span className="sr-only">2. </span>Review the rules, then sign
+          </span>
+        </h2>
+        <p data-testid="mandate-summary" className="col-span-2 rounded-xl bg-surface-2 px-4 py-3 text-sm leading-relaxed">
+          <span className="font-semibold">In plain words:</span> the agent may buy <span className="font-semibold">{form.categories || "nothing"}</span> from{" "}
+          <span className="font-semibold">{form.merchants || "no store"}</span>, up to <span className="font-semibold">${form.perPurchaseCap}</span> per purchase and{" "}
+          <span className="font-semibold">${form.totalBudget}</span> in total, at most <span className="font-semibold">{form.maxQuantity}</span> of any item. Anything
+          above <span className="font-semibold">${form.approvalThreshold}</span> waits for your approval. These rules last{" "}
+          <span className="font-semibold">{form.validDays}</span> days.
+        </p>
         <label className="text-sm font-medium">
           Per-purchase cap (USD)
           <input className={FIELD} name="perPurchaseCap" type="number" min="0.01" step="0.01" required value={form.perPurchaseCap} onChange={set("perPurchaseCap")} />
@@ -174,7 +208,7 @@ export default function MandatePage() {
           <input className={FIELD} name="validDays" type="number" min="1" step="1" required value={form.validDays} onChange={set("validDays")} />
         </label>
 
-        <div className="col-span-2">
+        <div className="col-span-2 flex flex-wrap items-center gap-3 border-t border-line pt-4">
           <button
             type="submit"
             disabled={result.kind === "working"}
@@ -182,16 +216,19 @@ export default function MandatePage() {
           >
             {result.kind === "working" ? `${result.step}…` : "Sign and save"}
           </button>
+          <span className="text-xs text-muted">Signed with a key that is created in this browser and never leaves it.</span>
         </div>
       </form>
 
       {result.kind === "done" && (
-        <section data-testid="mandate-saved" className="notice notice-ok mt-8">
-          <p className="font-semibold text-ok">Mandate signed and verified by the server. It is now entry #{result.seq} in the ledger.</p>
-          <p className="mt-1">
-            Next: <a href="/agent" className="font-semibold underline">let the agent shop</a>.
-          </p>
-          <dl className="mt-3 grid grid-cols-[8rem_1fr] gap-y-1 font-mono text-xs">
+        <section data-testid="mandate-saved" className="notice notice-ok rise mt-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-semibold text-ok">Mandate signed and verified by the server. It is now entry #{result.seq} in the ledger.</p>
+            <a href="/agent" className="btn btn-ok">
+              Next: let the agent shop
+            </a>
+          </div>
+          <dl className="mt-4 grid grid-cols-[8rem_1fr] gap-y-1 rounded-lg bg-white/70 p-3 font-mono text-xs">
             <dt>Mandate</dt>
             <dd data-testid="mandate-id">{result.mandateId}</dd>
             <dt>Ledger entry</dt>

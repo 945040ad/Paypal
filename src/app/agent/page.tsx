@@ -34,29 +34,52 @@ const STATUS_TEXT: Record<string, string> = {
   REJECTED: "No such product. Nothing was purchased.",
 };
 
-const TONE: Record<string, string> = {
-  ALLOW: "border-emerald-600 text-emerald-700 dark:text-emerald-400",
-  ESCALATE: "border-amber-500 text-amber-700 dark:text-amber-400",
-  BLOCK: "border-red-600 text-red-700 dark:text-red-400",
+const TONE: Record<string, { card: string; badge: string; label: string }> = {
+  ALLOW: { card: "border-ok bg-ok-soft", badge: "bg-ok text-white", label: "Allowed" },
+  ESCALATE: { card: "border-amber-400 bg-warn-soft", badge: "bg-amber-400 text-black", label: "Needs your approval" },
+  BLOCK: { card: "border-bad bg-bad-soft", badge: "bg-bad text-white", label: "Blocked" },
 };
+
+/** One-click tasks, so nobody has to think of what to type. The last one walks into the planted injection. */
+const EXAMPLES = [
+  "buy me a 1 m USB-C cable",
+  "buy me a mechanical keyboard under $40",
+  "buy the Tactile 75% mechanical keyboard",
+  "buy the coiled aviator keyboard cable",
+  "buy me a $50 gift card",
+];
 
 function DecisionCard({ event, purchase, onApprove, busy }: { event: DecisionEvent; purchase?: Purchase; onApprove: (intentId: string) => void; busy: boolean }) {
   const status = purchase?.status ?? event.status;
   const approveUrl = purchase?.approve_url ?? event.approve_url;
   const captureId = purchase?.capture_id ?? event.capture_id;
+  const tone = TONE[event.decision ?? ""];
   return (
-    <div data-testid="decision" data-decision={event.decision ?? "NONE"} data-rule={event.rule ?? ""} data-status={status} className={`rounded-lg border-2 bg-surface p-4 ${TONE[event.decision ?? ""] ?? "border-zinc-400"}`}>
-      <p className="text-sm font-semibold">
-        Gate: {event.decision ?? "not reached"}
-        {event.rule && <span className="ml-2 font-mono text-xs">rule {event.rule}</span>}
+    <div
+      data-testid="decision"
+      data-decision={event.decision ?? "NONE"}
+      data-rule={event.rule ?? ""}
+      data-status={status}
+      className={`rise rounded-xl border-2 p-5 shadow-sm ${tone?.card ?? "border-line bg-surface"}`}
+    >
+      <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${tone?.badge ?? "bg-surface-2 text-muted"}`}>
+          Gate: {event.decision ?? "not reached"}
+        </span>
+        {tone && <span>{tone.label}</span>}
+        {event.rule && <span className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-xs font-medium">rule {event.rule}</span>}
       </p>
-      <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
+      <p className="mt-3 text-base font-medium">
         {event.quantity} x {event.product_id}, total {dollars(event.total_cents)}
         {event.rule && `: ${RULE_TEXT[event.rule] ?? event.rule}`}.
       </p>
-      <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{STATUS_TEXT[status] ?? status}</p>
-      {captureId && <p className="mt-1 font-mono text-xs text-zinc-600 dark:text-zinc-400">PayPal capture {captureId}</p>}
-      <p className="mt-1 font-mono text-xs text-zinc-500">{event.intent_id}</p>
+      <p className="mt-1 text-sm text-muted">{STATUS_TEXT[status] ?? status}</p>
+      {captureId && (
+        <p className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white/80 px-3 py-1.5 font-mono text-xs">
+          <span className="font-sans font-semibold text-ok">PayPal capture</span> {captureId}
+        </p>
+      )}
+      <p className="mt-2 font-mono text-xs text-muted">{event.intent_id}</p>
       {status === "AWAITING_APPROVAL" && (
         <button type="button" disabled={busy} onClick={() => onApprove(event.intent_id)} className="btn btn-warn mt-3">
           {busy ? "Approving…" : `Approve ${dollars(event.total_cents)}`}
@@ -198,28 +221,49 @@ export default function AgentPage() {
 
       <section className="card mt-6 text-sm">
         {mandate === null ? (
-          <p className="text-zinc-500">Loading the mandate…</p>
+          <div className="space-y-2" aria-busy="true" aria-label="Loading the mandate">
+            <div className="skeleton h-5 w-1/3" />
+            <div className="skeleton h-12" />
+          </div>
         ) : !m ? (
-          <p>
-            No signed mandate yet.{" "}
-            <Link href="/mandate" className="underline">
-              Sign one first
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p>
+              <span className="font-semibold">No signed mandate yet.</span> <span className="text-muted">The agent cannot shop until you sign your rules.</span>
+            </p>
+            <Link href="/mandate" className="btn btn-accent">
+              Sign your rules
             </Link>
-            .
-          </p>
+          </div>
         ) : (
           <>
-            <p className="font-medium">
-              Mandate <span className="font-mono text-xs">{m.id}</span>
-            </p>
-            <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-              Up to {dollars(m.per_purchase_cap_cents)} per purchase, {dollars(m.total_budget_cents)} in total ({dollars(mandate.committed_cents)} used), asks you above{" "}
-              {dollars(m.approval_threshold_cents)}, at most {m.max_quantity_per_item} per item, categories: {m.allowed_categories.join(", ")}.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-semibold">Your signed rules</p>
+              <span className="font-mono text-xs text-muted">{m.id}</span>
+            </div>
+            <div className="mt-3">
+              <div className="flex items-baseline justify-between">
+                <p className="text-lg font-semibold">
+                  {dollars(mandate.committed_cents)} <span className="text-sm font-normal text-muted">used of {dollars(m.total_budget_cents)} in total</span>
+                </p>
+                <p className="text-xs text-muted">{dollars(Math.max(0, m.total_budget_cents - (mandate.committed_cents ?? 0)))} left</p>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2" role="presentation">
+                <div
+                  className="h-full rounded-full bg-accent transition-[width] duration-700"
+                  style={{ width: `${Math.min(100, ((mandate.committed_cents ?? 0) / m.total_budget_cents) * 100)}%` }}
+                />
+              </div>
+            </div>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              <li className="badge">Up to {dollars(m.per_purchase_cap_cents)} per purchase</li>
+              <li className="badge">Asks you above {dollars(m.approval_threshold_cents)}</li>
+              <li className="badge">At most {m.max_quantity_per_item} per item</li>
+              <li className="badge">Only {m.allowed_categories.join(", ")}</li>
+            </ul>
           </>
         )}
-        <p data-testid="agent-mode" className="mt-3 text-sm">
-          <span className="font-semibold">Gate mode: {mode === null ? "loading…" : mode === "OBSERVE" ? "Observe" : "Enforce"}.</span>{" "}
+        <p data-testid="agent-mode" className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4 text-sm">
+          <span className={`badge ${mode === "OBSERVE" ? "badge-warn" : "badge-ok"}`}>Gate mode: {mode === null ? "loading…" : mode === "OBSERVE" ? "Observe" : "Enforce"}.</span>
           <span className="text-muted">
             {mode === "OBSERVE" ? "The gate only records; it does not stop payments." : "The gate stops anything outside the mandate."} Change it with the switch
             at the top of the page.
@@ -255,45 +299,60 @@ export default function AgentPage() {
         </section>
       )}
 
-      <form onSubmit={run} className="mt-6">
-        <label className="text-sm font-medium" htmlFor="task">
+      <form onSubmit={run} className="card mt-6">
+        <label className="text-base font-semibold" htmlFor="task">
           What should the agent buy?
         </label>
-        <textarea id="task" name="task" rows={2} required value={task} onChange={(e) => setTask(e.target.value)} className="field" />
-        <div className="mt-2 flex flex-wrap items-center gap-4">
+        <textarea id="task" name="task" rows={2} required value={task} onChange={(e) => setTask(e.target.value)} className="field mt-2 text-base" />
+        <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Example tasks">
+          <span className="text-xs text-muted">Try:</span>
+          {EXAMPLES.map((example) => (
+            <button key={example} type="button" disabled={running} onClick={() => setTask(example)} className="chip">
+              {example}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line pt-4">
           <button type="submit" disabled={running || !m} className="btn btn-primary">
             {running ? "Agent is working…" : "Run agent"}
           </button>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="defences" checked={defences} onChange={(e) => setDefences(e.target.checked)} />
+          <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+            <input type="checkbox" name="defences" checked={defences} onChange={(e) => setDefences(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
             Agent&apos;s own injection defences
           </label>
-          <span className="text-xs text-zinc-500">Turn off to simulate an agent that trusts whatever a product page says. The gate is unaffected.</span>
+          <span className="text-xs text-muted">Turn off to simulate an agent that trusts whatever a product page says. The gate is unaffected.</span>
         </div>
       </form>
 
       <section className="mt-8 space-y-3" aria-live="polite">
-        {events.length === 0 && !running && <p className="text-sm text-zinc-500">Nothing yet. Run the agent to see each tool call and the gate&apos;s decision here.</p>}
+        {events.length === 0 && !running && (
+          <p className="rounded-xl border border-dashed border-line px-5 py-8 text-center text-sm text-muted">
+            Nothing yet. Run the agent to see each tool call and the gate&apos;s decision here.
+          </p>
+        )}
         {events.map((event, i) => {
           if (event.type === "start") {
             return (
-              <p key={i} className="text-xs text-zinc-500">
+              <p key={i} className="text-xs text-muted">
                 Started under mandate {event.mandate_id}, gate mode {event.mode}, agent defences {event.defences ? "on" : "off"}.
               </p>
             );
           }
           if (event.type === "tool_call") {
             return (
-              <p key={i} data-testid="tool-call" className="font-mono text-xs">
-                <span className="text-zinc-500">tool call</span> {event.tool}({JSON.stringify(event.input)})
+              <p key={i} data-testid="tool-call" className="rise flex items-start gap-2 font-mono text-xs">
+                <span className="badge shrink-0 font-sans">tool call</span>
+                <span className="break-all pt-0.5">
+                  {event.tool}({JSON.stringify(event.input)})
+                </span>
               </p>
             );
           }
           if (event.type === "tool_result") {
             return (
-              <details key={i} className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
-                <summary className="cursor-pointer">result of {event.tool}</summary>
-                <pre className="mt-1 overflow-x-auto whitespace-pre-wrap rounded bg-zinc-100 p-2 dark:bg-zinc-900">{JSON.stringify(event.output, null, 2)}</pre>
+              <details key={i} className="ml-1 border-l-2 border-line pl-3 font-mono text-xs text-muted">
+                <summary className="cursor-pointer hover:text-foreground">result of {event.tool}</summary>
+                <pre className="mt-1 overflow-x-auto whitespace-pre-wrap rounded-lg bg-surface-2 p-3">{JSON.stringify(event.output, null, 2)}</pre>
               </details>
             );
           }

@@ -33,9 +33,9 @@ const dollars = (cents: number | null) => (cents == null ? "-" : `$${(cents / 10
 const words = (s: string | null) => (s ?? "-").replaceAll("_", " ").toLowerCase();
 
 const BADGE: Record<Classification, { label: string; tone: string }> = {
-  IN_MANDATE: { label: "Inside the mandate", tone: "bg-emerald-700 text-white" },
-  VIOLATION: { label: "Agent broke the mandate", tone: "bg-red-700 text-white" },
-  UNKNOWN: { label: "Needs a person", tone: "bg-zinc-600 text-white" },
+  IN_MANDATE: { label: "Inside the mandate", tone: "bg-ok text-white" },
+  VIOLATION: { label: "Agent broke the mandate", tone: "bg-bad text-white" },
+  UNKNOWN: { label: "Needs a person", tone: "bg-surface-2 text-muted" },
 };
 
 const BUTTON = "btn";
@@ -232,14 +232,14 @@ export default function DisputesPage() {
                   data-testid="dispute-row"
                   data-id={r.dispute_id}
                   onClick={() => open(r.dispute_id)}
-                  className={`w-full rounded-lg border bg-surface p-3 text-left text-sm ${selected === r.dispute_id ? "border-foreground shadow-[inset_4px_0_0_var(--accent)]" : "border-line hover:border-foreground"}`}
+                  className={`w-full rounded-xl border bg-surface p-4 text-left text-sm shadow-sm transition-all hover:-translate-y-0.5 ${selected === r.dispute_id ? "border-accent ring-4 ring-accent/15" : "border-line hover:border-accent"}`}
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs">{r.dispute_id}</span>
                     <span className="font-mono">{dollars(r.amount_cents)}</span>
                   </span>
-                  <span className={`mt-2 inline-block rounded px-2 py-0.5 text-xs font-semibold ${BADGE[r.classification].tone}`}>{BADGE[r.classification].label}</span>
-                  <span className="mt-1 block text-xs text-zinc-500">
+                  <span className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${BADGE[r.classification].tone}`}>{BADGE[r.classification].label}</span>
+                  <span className="mt-1 block text-xs text-muted">
                     {r.status === "RESOLVED" ? `Resolved: ${words(r.outcome)}` : `${words(r.status)}, ${words(r.stage)} stage`}
                   </span>
                 </button>
@@ -249,7 +249,7 @@ export default function DisputesPage() {
         </section>
 
         <section aria-label="Dispute detail" aria-live="polite">
-          {!selected && rows !== null && rows.length > 0 && <p className="text-sm text-zinc-500">Choose a dispute to see what the ledger says about it.</p>}
+          {!selected && rows !== null && rows.length > 0 && <p className="rounded-xl border border-dashed border-line px-5 py-10 text-center text-sm text-muted">Choose a dispute on the left to see what the ledger says about it.</p>}
           {selected && loadingDetail && !detail && (
             <div aria-busy="true">
               <p className="text-sm text-muted">Asking PayPal for the latest state of {selected}…</p>
@@ -258,17 +258,17 @@ export default function DisputesPage() {
             </div>
           )}
           {detail && (
-            <div data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""}>
-              <h2 className="font-mono text-lg">{detail.dispute_id}</h2>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <div data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""} className="card rise">
+              <h2 className="font-mono text-xl font-semibold">{detail.dispute_id}</h2>
+              <p className="mt-1 text-sm text-muted">
                 Buyer&apos;s reason: {words(detail.reason)}. PayPal status: {words(detail.status)}, {words(detail.stage)} stage.
                 {detail.outcome && ` Outcome: ${words(detail.outcome)}.`}
               </p>
 
-              <div className={`mt-4 rounded-lg border-2 bg-surface p-4 ${detail.classification === "IN_MANDATE" ? "border-ok" : detail.classification === "VIOLATION" ? "border-bad" : "border-zinc-400"}`}>
-                <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${BADGE[detail.classification].tone}`}>{BADGE[detail.classification].label}</span>
-                <p className="mt-2 text-sm">{detail.classification_reason}</p>
-                <p className="mt-1 text-xs text-zinc-500">Decided by code from the ledger. No AI model takes part in this decision.</p>
+              <div className={`mt-4 rounded-xl border-2 p-5 ${detail.classification === "IN_MANDATE" ? "border-ok bg-ok-soft" : detail.classification === "VIOLATION" ? "border-bad bg-bad-soft" : "border-line bg-surface"}`}>
+                <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${BADGE[detail.classification].tone}`}>{BADGE[detail.classification].label}</span>
+                <p className="mt-3 text-base font-medium">{detail.classification_reason}</p>
+                <p className="mt-1 text-xs text-muted">Decided by code from the ledger. No AI model takes part in this decision.</p>
               </div>
 
               {nextStep(detail) && (
@@ -278,7 +278,7 @@ export default function DisputesPage() {
               )}
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                {resolved && <p className="text-sm font-medium">This dispute is closed. Nothing more to do.</p>}
+                {resolved && <p className="badge">This dispute is closed. Nothing more to do.</p>}
                 {!resolved && detail.classification !== "VIOLATION" && can("provide_evidence") && detail.evidence_type && (
                   <button type="button" data-testid="file-evidence" disabled={busy !== null} onClick={() => act("file-evidence", "Evidence filed with PayPal and recorded in the ledger.")} className={`${BUTTON} btn-ok`}>
                     {busy === "file-evidence" ? "Filing…" : "File evidence"}
@@ -294,13 +294,13 @@ export default function DisputesPage() {
                     {busy === "escalate" ? "Escalating…" : "Ask PayPal to decide (escalate)"}
                   </button>
                 )}
-                {!resolved && detail.actions.length === 0 && <p className="text-sm text-zinc-600 dark:text-zinc-400">PayPal is not accepting any action on this dispute right now. In the sandbox this wait can take up to half an hour. Use Sync from PayPal to check again.</p>}
+                {!resolved && detail.actions.length === 0 && <p className="text-sm text-muted">PayPal is not accepting any action on this dispute right now. In the sandbox this wait can take up to half an hour. Use Sync from PayPal to check again.</p>}
               </div>
 
               {!resolved && can("adjudicate") && (
-                <div className="mt-4 rounded-lg border border-dashed border-warn p-4">
+                <div className="mt-4 rounded-xl border border-dashed border-amber-400 bg-warn-soft p-4">
                   <p className="text-sm font-semibold text-warn">Simulate PayPal&apos;s decision (sandbox only)</p>
-                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">In real life PayPal reviews the evidence and decides. The sandbox has no reviewer, so this stands in for one.</p>
+                  <p className="mt-1 text-xs text-muted">In real life PayPal reviews the evidence and decides. The sandbox has no reviewer, so this stands in for one.</p>
                   <div className="mt-3 flex gap-3">
                     <button type="button" data-testid="adjudicate-seller" disabled={busy !== null} onClick={() => act("adjudicate", "PayPal's decision was simulated: for the seller. It takes a few minutes to show as resolved.", { outcome: "SELLER_FAVOR" })} className={`${BUTTON} btn-warn`}>
                       Decide for the seller
@@ -315,7 +315,7 @@ export default function DisputesPage() {
               {detail.draft && (
                 <div className="mt-6">
                   <h3 className="text-sm font-semibold">Evidence that will be filed ({words(detail.draft.evidence_type)})</h3>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-muted">
                     {detail.draft.source === "model"
                       ? "Notes drafted by the AI model. Code checked that every ledger entry they cite exists."
                       : "Notes from the fixed template, built from ledger facts only."}
@@ -329,23 +329,23 @@ export default function DisputesPage() {
                 <div className="mt-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold">Evidence PDF</h3>
-                    <a href={`/api/disputes/${detail.dispute_id}/evidence`} target="_blank" rel="noreferrer" className="text-sm underline">
+                    <a href={`/api/disputes/${detail.dispute_id}/evidence`} target="_blank" rel="noreferrer" className="text-sm font-medium text-accent hover:underline">
                       Open in a new tab
                     </a>
                   </div>
-                  <iframe title={`Evidence PDF for ${detail.dispute_id}`} src={`/api/disputes/${detail.dispute_id}/evidence#toolbar=0`} className="mt-2 h-96 w-full rounded-lg border border-line bg-surface" />
+                  <iframe title={`Evidence PDF for ${detail.dispute_id}`} src={`/api/disputes/${detail.dispute_id}/evidence#toolbar=0`} className="mt-2 h-96 w-full rounded-xl border border-line bg-surface" />
                 </div>
               )}
 
               <div className="mt-6">
                 <h3 className="text-sm font-semibold">What the ledger holds</h3>
                 {detail.timeline.length === 0 ? (
-                  <p className="mt-2 text-sm text-zinc-500">Nothing. This payment was not made through the gate.</p>
+                  <p className="mt-2 text-sm text-muted">Nothing. This payment was not made through the gate.</p>
                 ) : (
-                  <ol className="mt-2 space-y-1">
+                  <ol className="mt-2 space-y-1.5 rounded-xl bg-surface-2 p-4">
                     {detail.timeline.map((e) => (
-                      <li key={e.seq} data-testid="timeline-entry" data-type={e.type} className={`font-mono text-xs ${e.type === "VIOLATION" || e.type === "UNMATCHED_CAPTURE" ? "text-red-700 dark:text-red-400" : ""}`}>
-                        {e.text} <span className="text-zinc-400">{e.hash.slice(0, 10)}</span>
+                      <li key={e.seq} data-testid="timeline-entry" data-type={e.type} className={`font-mono text-xs ${e.type === "VIOLATION" || e.type === "UNMATCHED_CAPTURE" ? "font-semibold text-bad" : ""}`}>
+                        {e.text} <span className="text-muted">{e.hash.slice(0, 10)}</span>
                       </li>
                     ))}
                   </ol>

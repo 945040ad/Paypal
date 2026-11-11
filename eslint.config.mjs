@@ -13,7 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Local data and scratch files (git-ignored):
-    "data/**",
+    "data/**", "video/**",
   ]),
 ]);
 
