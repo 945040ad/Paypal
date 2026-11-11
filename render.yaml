@@ -3,7 +3,7 @@ services:
     name: system-audit
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build
+    buildCommand: rm -rf .next && npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /api/healthz
     envVars:
