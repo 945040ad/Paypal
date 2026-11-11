@@ -76,7 +76,7 @@ async function onePagePdf(disputeId: string) {
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595, 842]);
   const font = await pdf.embedFont(StandardFonts.Helvetica);
-  page.drawText("SYSTEM//AUDIT evidence (Phase 1 spike)", { x: 50, y: 780, size: 16, font });
+  page.drawText("Verdict evidence (Phase 1 spike)", { x: 50, y: 780, size: 16, font });
   page.drawText(`Dispute ${disputeId}`, { x: 50, y: 750, size: 12, font });
   page.drawText(`Generated ${new Date().toISOString()}`, { x: 50, y: 730, size: 12, font });
   page.drawText("The buyer authorised this purchase under a signed mandate.", { x: 50, y: 700, size: 12, font });
@@ -108,7 +108,7 @@ const commands: Record<string, (...args: string[]) => Promise<void>> = {
       purchase_units: [
         {
           custom_id: `spike:${label}:${Date.now()}`,
-          description: "SYSTEM//AUDIT dispute spike",
+          description: "Verdict dispute spike",
           amount: { currency_code: "USD", value: "10.00" },
         },
       ],

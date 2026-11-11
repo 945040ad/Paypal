@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const body = getLedger().export();
   if (new URL(request.url).searchParams.has("download")) {
     return new Response(JSON.stringify(body, null, 2), {
-      headers: { "Content-Type": "application/json", "Content-Disposition": 'attachment; filename="system-audit-ledger.json"' },
+      headers: { "Content-Type": "application/json", "Content-Disposition": 'attachment; filename="verdict-ledger.json"' },
     });
   }
   return Response.json(body);

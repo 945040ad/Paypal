@@ -46,7 +46,7 @@ export async function buildEvidencePdf(db: Db, ledger: Ledger, disputeId: string
   const signatureValid = stored ? verifyMandateSignature({ mandate: stored.mandate, signature: stored.signature, publicKeyJwk: stored.public_key_jwk }) : false;
 
   const lines: string[] = [
-    "SYSTEM//AUDIT  EVIDENCE PACK",
+    "VERDICT  EVIDENCE PACK",
     `Generated ${new Date().toISOString()}  (PayPal sandbox)`,
     "",
     "1. DISPUTE",
@@ -90,13 +90,13 @@ export async function buildEvidencePdf(db: Db, ledger: Ledger, disputeId: string
   }
 
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`SYSTEM//AUDIT evidence for ${row.dispute_id}`);
+  pdf.setTitle(`Verdict evidence for ${row.dispute_id}`);
   const font = await pdf.embedFont(StandardFonts.Courier);
   const bold = await pdf.embedFont(StandardFonts.CourierBold);
   let page = pdf.addPage([PAGE.width, PAGE.height]);
   let y = PAGE.height - PAGE.margin;
   for (const line of lines) {
-    const heading = /^(\d\. |SYSTEM\/\/AUDIT)/.test(line);
+    const heading = /^(\d\. |VERDICT)/.test(line);
     for (const part of wrap(line)) {
       if (y < PAGE.margin) {
         page = pdf.addPage([PAGE.width, PAGE.height]);

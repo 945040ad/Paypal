@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SYSTEM//AUDIT",
+  title: "Verdict",
   description: "A flight recorder for AI agents that spend money through PayPal.",
 };
 
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="relative z-10 bg-[#16161a] text-white">
           <div className="mx-auto flex w-full max-w-[68rem] flex-wrap items-center gap-x-6 gap-y-2 px-6 py-3">
             <Link href="/" className="font-mono text-base font-semibold tracking-tight">
-              SYSTEM<span className="text-orange-500">{"//"}</span>AUDIT
+              <span className="text-orange-500">{"//"}</span>VERDICT
             </Link>
             <nav aria-label="Main" className="flex flex-wrap items-center gap-x-5 gap-y-1">
               <Suspense>

@@ -1,4 +1,4 @@
-# SYSTEM//AUDIT
+# Verdict
 
 Hackathon project. Spec: PLAN.md. Deadline: Fri 13 Nov 2026, 01:30 IST. Feature freeze: Thu 12 Nov, 15:00 IST.
 

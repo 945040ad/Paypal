@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PRODUCTS } from "@/store/products";
 
-export const metadata = { title: "Demo store | SYSTEM//AUDIT" };
+export const metadata = { title: "Demo store | Verdict" };
 
 const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 

@@ -1,4 +1,4 @@
-# SYSTEM//AUDIT: implementation plan for Claude Code
+# Verdict: implementation plan for Claude Code
 
 Nov 10, 2026 · @Tir
 
@@ -25,11 +25,11 @@ Assumptions behind the plan (change these lines first if they are wrong):
 - One developer, no code written yet.
 - TypeScript and Next.js, one app for frontend and backend.
 - Google Gemini on the free tier as the model inside the app, behind one small adapter so it can be swapped.
-- Scope is the narrowed SYSTEM//AUDIT. The full-scope extras come only after the core is done.
+- Scope is the narrowed Verdict. The full-scope extras come only after the core is done.
 
 ## What we are building
 
-SYSTEM//AUDIT is a flight recorder for AI agents that spend money through PayPal: it records what the user allowed and what the agent did, and uses that record to settle a PayPal dispute for whichever side is right.
+Verdict is a flight recorder for AI agents that spend money through PayPal: it records what the user allowed and what the agent did, and uses that record to settle a PayPal dispute for whichever side is right.
 
 The product has six parts:
 
@@ -114,7 +114,7 @@ claude mcp add paypal \
 **CLAUDE.md.** Save this in the project root. Claude Code reads it at the start of every session.
 
 ```markdown
-# SYSTEM//AUDIT
+# Verdict
 
 Hackathon project. Spec: PLAN.md. Deadline: Fri 13 Nov 2026, 01:30 IST. Feature freeze: Thu 12 Nov, 15:00 IST.
 
@@ -427,7 +427,7 @@ Disputes take several minutes to move between states in the sandbox, so record t
 
 | Time | On screen | Say |
 | --- | --- | --- |
-| 0:00 to 0:20 | Overview page | AI agents can now pay with PayPal. When one spends your money and someone disputes it, nobody can prove what was allowed. SYSTEM//AUDIT is the record that settles it. |
+| 0:00 to 0:20 | Overview page | AI agents can now pay with PayPal. When one spends your money and someone disputes it, nobody can prove what was allowed. Verdict is the record that settles it. |
 | 0:20 to 0:45 | Mandate page: type a sentence, review the fields, sign | The user sets rules in plain words and signs them. The key never leaves the browser. |
 | 0:45 to 1:15 | Agent page: a normal purchase, then the injected product | The agent can only propose. Code checks every proposal. Here a product page tells the agent to buy ten, and the gate blocks it. |
 | 1:15 to 1:35 | Ledger page: Verify passes, tamper with a row, Verify fails | Every step is hash-chained. Change one row and the chain breaks. |

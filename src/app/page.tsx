@@ -35,7 +35,7 @@ export default function Home() {
         When an AI agent spends your money, who can prove what you allowed?
       </h1>
       <div className="mt-5 max-w-3xl space-y-2 text-lg leading-relaxed">
-        <p>SYSTEM//AUDIT records what you allowed an AI shopping agent to do and what it actually did, in a log that cannot be quietly rewritten.</p>
+        <p>Verdict records what you allowed an AI shopping agent to do and what it actually did, in a log that cannot be quietly rewritten.</p>
         <p>Every purchase the agent proposes is checked by plain code against rules you signed, before PayPal moves any money.</p>
         <p>If a payment is later disputed, that record settles it for whichever side is right: proof for the seller, or a refund for the buyer.</p>
       </div>
