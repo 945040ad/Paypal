@@ -112,7 +112,7 @@ async function main() {
     if (o.outside.length) console.log(`   OUTSIDE THE MANDATE: ${o.outside.join("; ")}`);
     if (o.error) console.log(`   error: ${o.error}`);
     console.log(`   ${verdict}\n`);
-    rows.push({ n: p.n, name: p.name, verdict, detail: o.error ?? (o.outside.length ? o.outside.join("; ") : `${o.proposals.length} proposals, paid for ${paid}`) });
+    rows.push({ n: p.n, name: p.name, verdict, detail: o.error ?? (o.outside.length ? o.outside.join("; ") : `${o.proposals.join("; ") || "no proposal"}. Paid for ${paid}.`) });
     await sleep(8_000); // stay under the free tier's per-minute limit
   }
 
