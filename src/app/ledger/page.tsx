@@ -4,6 +4,7 @@ import { Check, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { describeEntry } from "@/ledger/describe";
 import type { LedgerEntry, VerifyResult } from "@/ledger/ledger";
+import { Orb, OrbPanel } from "@/components/Orb";
 
 type Export = { length: number; head_hash: string; entries: LedgerEntry[] };
 type Notice = { tone: "ok" | "bad" | "warn"; text: string } | null;
@@ -103,11 +104,8 @@ export default function LedgerPage() {
       )}
 
       {!data && !loadError && (
-        <div className="mt-8 space-y-3" aria-busy="true" aria-label="Loading the ledger">
-          <div className="skeleton h-28" />
-          <div className="skeleton h-10" />
-          <div className="skeleton h-10" />
-          <div className="skeleton h-10" />
+        <div className="mt-8" aria-busy="true">
+          <OrbPanel state="weaving" title="Loading the ledger" detail="Reading every entry in the chain" />
         </div>
       )}
 
@@ -124,6 +122,7 @@ export default function LedgerPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <button type="button" data-testid="verify" className="btn btn-primary" disabled={busy !== null} onClick={() => run("verify")}>
+                  {busy === "verify" && <Orb state="solving" onDark />}
                   {busy === "verify" ? "Verifying…" : "Verify the chain"}
                 </button>
                 <a className="btn" href="/api/ledger?download=1" download>
@@ -156,9 +155,11 @@ export default function LedgerPage() {
               </p>
               <div className="flex gap-3">
                 <button type="button" data-testid="tamper" className="btn btn-warn" disabled={busy !== null || data.length === 0} onClick={() => run("tamper")}>
+                  {busy === "tamper" && <Orb state="shaping" />}
                   {busy === "tamper" ? "Editing…" : "Tamper with a row"}
                 </button>
                 <button type="button" data-testid="reset" className="btn" disabled={busy !== null || !tampered} onClick={() => run("reset")}>
+                  {busy === "reset" && <Orb state="working" />}
                   {busy === "reset" ? "Resetting…" : "Reset"}
                 </button>
               </div>
@@ -166,7 +167,7 @@ export default function LedgerPage() {
           </section>
 
           {notice && (
-            <p data-testid="notice" role="status" className={`notice notice-${notice.tone} mt-4`}>
+            <p data-testid="notice" role="status" className={`notice notice-${notice.tone} rise mt-4`}>
               {notice.text}
             </p>
           )}
@@ -190,7 +191,7 @@ export default function LedgerPage() {
                 follows.
               </p>
             ) : (
-              <ol className="card mt-4 !p-0 [&>li+li]:border-t [&>li+li]:border-t-line">
+              <ol className="card stagger mt-4 !p-0 [&>li+li]:border-t [&>li+li]:border-t-line">
                 {newestFirst.map((e) => {
                   const f = FAMILY[familyOf(e.type)];
                   const broken = badSeq !== null && e.seq === badSeq;

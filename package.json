@@ -29,6 +29,7 @@
     "pdf-lib": "^1.17.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "thinking-orbs": "^0.3.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {

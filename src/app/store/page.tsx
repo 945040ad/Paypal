@@ -17,7 +17,7 @@ export default function StorePage() {
       <p className="lede">
         A small shop the agent can buy from. Payments go through the PayPal sandbox; nothing here is real merchandise.
       </p>
-      <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="stagger mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {PRODUCTS.map((p) => {
           const Icon = ICON[p.category] ?? Package;
           return (

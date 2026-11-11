@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Orb, OrbPanel } from "@/components/Orb";
 
 type Classification = "IN_MANDATE" | "VIOLATION" | "UNKNOWN";
 type Row = {
@@ -191,6 +192,7 @@ export default function DisputesPage() {
         </div>
         <div className="text-right">
           <button type="button" onClick={sync} disabled={busy !== null} className={BUTTON}>
+            {busy === "sync" && <Orb state="connecting" />}
             {busy === "sync" ? "Syncing…" : "Sync from PayPal"}
           </button>
           <p className="mt-2 text-xs text-muted">Updates on its own while this page is open.</p>
@@ -198,7 +200,7 @@ export default function DisputesPage() {
       </div>
 
       {notice && (
-        <p data-testid="notice" role="status" className={`notice mt-6 ${notice.tone === "ok" ? "notice-ok" : "notice-bad"}`}>
+        <p data-testid="notice" role="status" className={`notice rise mt-6 ${notice.tone === "ok" ? "notice-ok" : "notice-bad"}`}>
           {notice.text}
         </p>
       )}
@@ -206,10 +208,9 @@ export default function DisputesPage() {
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[20rem_1fr]">
         <section aria-label="Disputes">
           {rows === null && (
-            <div className="space-y-2" aria-busy="true" aria-label="Loading disputes">
-              <div className="skeleton h-20" />
-              <div className="skeleton h-20" />
-            </div>
+            <p className="flex items-center gap-3 p-4 text-sm text-secondary" aria-busy="true">
+              <Orb state="breathing" label="Loading disputes" /> Loading disputes
+            </p>
           )}
           {rows?.length === 0 && (
             <div className="card text-sm">
@@ -224,7 +225,7 @@ export default function DisputesPage() {
               </ol>
             </div>
           )}
-          <ul className="space-y-2">
+          <ul className="stagger space-y-2">
             {rows?.map((r) => (
               <li key={r.dispute_id}>
                 <button
@@ -252,13 +253,11 @@ export default function DisputesPage() {
           {!selected && rows !== null && rows.length > 0 && <p className="rounded-xl border border-dashed border-line px-5 py-10 text-center text-sm text-muted">Choose a dispute on the left to see what the ledger says about it.</p>}
           {selected && loadingDetail && !detail && (
             <div aria-busy="true">
-              <p className="text-sm text-muted">Asking PayPal for the latest state of {selected}…</p>
-              <div className="skeleton mt-3 h-24" />
-              <div className="skeleton mt-3 h-40" />
+              <OrbPanel state="connecting" title="Asking PayPal for the latest state" detail={selected} />
             </div>
           )}
           {detail && (
-            <div data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""} className="card">
+            <div key={detail.dispute_id} data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""} className="card swap">
               <h2 className="font-mono text-xl font-semibold">{detail.dispute_id}</h2>
               <p className="mt-1 text-sm text-muted">
                 Buyer&apos;s reason: {words(detail.reason)}. PayPal status: {words(detail.status)}, {words(detail.stage)} stage.
@@ -281,16 +280,19 @@ export default function DisputesPage() {
                 {resolved && <p className="badge">This dispute is closed. Nothing more to do.</p>}
                 {!resolved && detail.classification !== "VIOLATION" && can("provide_evidence") && detail.evidence_type && (
                   <button type="button" data-testid="file-evidence" disabled={busy !== null} onClick={() => act("file-evidence", "Evidence filed with PayPal and recorded in the ledger.")} className={`${BUTTON} btn-ok`}>
+                    {busy === "file-evidence" && <Orb state="composing" onDark />}
                     {busy === "file-evidence" ? "Filing…" : "File evidence"}
                   </button>
                 )}
                 {!resolved && detail.classification !== "IN_MANDATE" && can("accept_claim") && (
                   <button type="button" data-testid="accept-claim" disabled={busy !== null} onClick={() => act("accept-claim", "Claim accepted. PayPal is refunding the buyer in full.")} className={`${BUTTON} btn-bad`}>
+                    {busy === "accept-claim" && <Orb state="connecting" onDark />}
                     {busy === "accept-claim" ? "Accepting…" : "Accept claim and refund"}
                   </button>
                 )}
                 {!resolved && detail.classification !== "VIOLATION" && can("escalate") && (
                   <button type="button" data-testid="escalate" disabled={busy !== null} onClick={() => act("escalate", "Escalated to a PayPal claim. PayPal will ask for evidence in a few minutes.")} className={BUTTON}>
+                    {busy === "escalate" && <Orb state="connecting" />}
                     {busy === "escalate" ? "Escalating…" : "Ask PayPal to decide (escalate)"}
                   </button>
                 )}

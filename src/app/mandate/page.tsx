@@ -4,6 +4,7 @@ import { useState } from "react";
 import { loadOrCreateKeyPair } from "@/mandate/keystore";
 import type { Mandate } from "@/mandate/schema";
 import { exportPublicJwk, signMandate } from "@/mandate/sign";
+import { Orb } from "@/components/Orb";
 
 type Result =
   | { kind: "idle" }
@@ -148,10 +149,11 @@ export default function MandatePage() {
             disabled={draft.kind === "working" || !sentence.trim()}
             className="btn"
           >
+            {draft.kind === "working" && <Orb state="composing" />}
             {draft.kind === "working" ? "Drafting…" : "Draft the rules with AI"}
           </button>
           {draft.kind === "done" && (
-            <span data-testid="draft-done" className="text-sm text-ok">
+            <span data-testid="draft-done" className="fade-in text-sm text-ok">
               Drafted. Check the fields below before you sign.
             </span>
           )}
@@ -214,6 +216,7 @@ export default function MandatePage() {
             disabled={result.kind === "working"}
             className="btn btn-primary"
           >
+            {result.kind === "working" && <Orb state="weaving" onDark />}
             {result.kind === "working" ? `${result.step}…` : "Sign and save"}
           </button>
           <span className="text-xs text-muted">Signed with a key that is created in this browser and never leaves it.</span>

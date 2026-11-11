@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { AgentEvent } from "@/ai/agent";
 import { MODE_EVENT } from "@/components/ModeSwitch";
 import type { Mandate } from "@/mandate/schema";
+import { Orb, OrbPanel, type OrbState } from "@/components/Orb";
 
 type StreamEvent = AgentEvent | { type: "start"; mandate_id: string; mode: string; defences: boolean };
 type DecisionEvent = Extract<AgentEvent, { type: "decision" }>;
@@ -38,6 +39,12 @@ const TONE: Record<string, { card: string; badge: string; label: string }> = {
   ALLOW: { card: "border-l-ok", badge: "text-ok", label: "Allowed" },
   ESCALATE: { card: "border-l-warn", badge: "text-warn", label: "Needs your approval" },
   BLOCK: { card: "border-l-bad", badge: "text-bad", label: "Blocked" },
+};
+
+const WORKING: Record<string, { state: OrbState; title: string }> = {
+  search_products: { state: "searching", title: "Searching the store" },
+  view_product: { state: "composing", title: "Reading the product page" },
+  propose_purchase: { state: "solving", title: "The gate is checking the proposal" },
 };
 
 /** One-click tasks, so nobody has to think of what to type. The last one walks into the planted injection. */
@@ -82,6 +89,7 @@ function DecisionCard({ event, purchase, onApprove, busy }: { event: DecisionEve
       <p className="mt-2 font-mono text-xs text-muted">{event.intent_id}</p>
       {status === "AWAITING_APPROVAL" && (
         <button type="button" disabled={busy} onClick={() => onApprove(event.intent_id)} className="btn btn-warn mt-3">
+          {busy && <Orb state="connecting" />}
           {busy ? "Approving…" : `Approve ${dollars(event.total_cents)}`}
         </button>
       )}
@@ -200,6 +208,9 @@ export default function AgentPage() {
   }
 
   const m = mandate?.mandate;
+  // What the orb shows while the agent runs: the kind of work its latest tool call is doing.
+  const lastTool = [...events].reverse().find((e) => e.type === "tool_call");
+  const working = WORKING[lastTool?.type === "tool_call" ? lastTool.tool : ""] ?? { state: "working" as const, title: "The agent is thinking" };
   // Purchases from this page's own run already have a card with a button below; list only the others.
   const shownBelow = new Set(events.flatMap((e) => (e.type === "decision" ? [e.intent_id] : [])));
   const waitingElsewhere = waiting.filter((w) => !shownBelow.has(w.intent_id));
@@ -214,17 +225,16 @@ export default function AgentPage() {
       </p>
 
       {notice && (
-        <p data-testid="notice" role="status" className={`notice mt-6 ${notice.tone === "ok" ? "notice-ok" : "notice-bad"}`}>
+        <p data-testid="notice" role="status" className={`notice rise mt-6 ${notice.tone === "ok" ? "notice-ok" : "notice-bad"}`}>
           {notice.text}
         </p>
       )}
 
       <section className="card mt-6 text-sm">
         {mandate === null ? (
-          <div className="space-y-2" aria-busy="true" aria-label="Loading the mandate">
-            <div className="skeleton h-5 w-1/3" />
-            <div className="skeleton h-12" />
-          </div>
+          <p className="flex items-center gap-3 text-secondary" aria-busy="true">
+            <Orb state="breathing" label="Loading the mandate" /> Loading your signed rules
+          </p>
         ) : !m ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p>
@@ -249,7 +259,7 @@ export default function AgentPage() {
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-sm bg-surface-3" role="presentation">
                 <div
-                  className="h-full rounded-sm bg-foreground"
+                  className="grow-x h-full rounded-sm bg-foreground"
                   style={{ width: `${Math.min(100, ((mandate.committed_cents ?? 0) / m.total_budget_cents) * 100)}%` }}
                 />
               </div>
@@ -271,7 +281,7 @@ export default function AgentPage() {
       </section>
 
       {waitingElsewhere.length > 0 && (
-        <section data-testid="waiting" className="card mt-6 text-sm">
+        <section data-testid="waiting" className="card rise mt-6 text-sm">
           <p className="font-semibold">Waiting for you</p>
           <p className="mt-1 text-muted">Purchases an agent proposed that only you can move forward, including agents connected over MCP.</p>
           <ul className="mt-3 space-y-3">
@@ -283,6 +293,7 @@ export default function AgentPage() {
                 </span>
                 {w.status === "AWAITING_APPROVAL" ? (
                   <button type="button" disabled={approving === w.intent_id} onClick={() => approve(w.intent_id)} className="btn btn-warn">
+                    {approving === w.intent_id && <Orb state="connecting" />}
                     {approving === w.intent_id ? "Approving…" : `Approve ${dollars(w.total_cents)}`}
                   </button>
                 ) : (
@@ -313,6 +324,7 @@ export default function AgentPage() {
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line pt-4">
           <button type="submit" disabled={running || !m} className="btn btn-primary">
+            {running && <Orb state="working" onDark />}
             {running ? "Agent is working…" : "Run agent"}
           </button>
           <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
@@ -372,9 +384,7 @@ export default function AgentPage() {
           );
         })}
         {running && (
-          <p className="flex items-center gap-2 text-sm text-muted">
-            <span className="skeleton inline-block h-3 w-24" /> The agent is working. Each tool call appears here as it happens.
-          </p>
+          <OrbPanel state={working.state} title={working.title} detail="Each tool call appears above as it happens" />
         )}
         <div ref={bottom} />
       </section>

@@ -263,12 +263,79 @@ html[data-gate="OBSERVE"] .shell-content {
   border-radius: 0.5rem;
   background: var(--surface-3);
 }
-/* The one entrance: a result arriving. */
+/* Motion. One easing curve, short distances, opacity and transform only. */
+/* A result arriving: a decision card, a notice, a verify banner. */
 .rise {
-  animation: rise 360ms var(--ease) both;
+  animation: rise 420ms var(--ease) both;
+}
+.fade-in {
+  animation: fade 260ms var(--ease) both;
+}
+/* Every page arrives the same way on navigation. */
+.page-enter {
+  animation: page-in 460ms var(--ease) both;
+}
+/* The children of a list or grid arrive one after another, six at most; the rest come with the last. */
+.stagger > * {
+  animation: rise 460ms var(--ease) both;
+  animation-delay: 300ms;
+}
+.stagger > :nth-child(1) { animation-delay: 60ms; }
+.stagger > :nth-child(2) { animation-delay: 110ms; }
+.stagger > :nth-child(3) { animation-delay: 160ms; }
+.stagger > :nth-child(4) { animation-delay: 210ms; }
+.stagger > :nth-child(5) { animation-delay: 260ms; }
+/* A bar that grows to its value instead of appearing at it. */
+.grow-x {
+  transform-origin: left center;
+  animation: grow-x 700ms var(--ease) both;
+  transition: width 500ms var(--ease);
+}
+/* A panel swapping its content, for example a different dispute being opened. */
+.swap {
+  animation: swap 320ms var(--ease) both;
+}
+/* A line that draws itself under a heading. */
+.draw-line {
+  transform-origin: left center;
+  animation: grow-x 600ms var(--ease) 120ms both;
+}
+.card-link {
+  transition: border-color 180ms var(--ease), background-color 180ms var(--ease);
+}
+.arrow-nudge {
+  transition: transform 180ms var(--ease), color 180ms var(--ease);
+}
+.group:hover .arrow-nudge {
+  transform: translateX(3px);
+}
+details[open] > :not(summary) {
+  animation: fade 260ms var(--ease) both;
 }
 }
 
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes swap {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+}
 @keyframes rise {
   from {
     opacity: 0;
@@ -276,8 +343,18 @@ html[data-gate="OBSERVE"] .shell-content {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rise {
+  .rise,
+  .fade-in,
+  .page-enter,
+  .stagger > *,
+  .grow-x,
+  .swap,
+  .draw-line,
+  details[open] > :not(summary) {
     animation: none;
+  }
+  .group:hover .arrow-nudge {
+    transform: none;
   }
   .btn {
     transition: none;

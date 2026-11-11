@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { describeEntry } from "@/ledger/describe";
 import type { LedgerEntry } from "@/ledger/ledger";
+import { Orb } from "@/components/Orb";
 
 type Snapshot = {
   mandate: { budget: number; used: number } | null;
@@ -39,11 +40,11 @@ export function LiveStatus() {
   const loading = snap === null;
 
   return (
-    <section aria-label="The ledger of this demo, live" className="card !p-0">
+    <section aria-label="The ledger of this demo, live" className="card rise !p-0 [animation-delay:120ms]">
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-5 py-3">
         <p className="text-sm font-medium">Ledger, live from the sandbox</p>
         {loading ? (
-          <div className="skeleton h-5 w-28" />
+          <Orb state="breathing" label="Loading the ledger" />
         ) : snap.ledger ? (
           <p className={`badge ${snap.ledger.ok ? "badge-ok" : "badge-bad"}`}>
             {snap.ledger.length} entries, {snap.ledger.ok ? "chain verified" : "chain broken"}
@@ -53,7 +54,7 @@ export function LiveStatus() {
         )}
       </header>
 
-      <ol className="min-h-[19rem] divide-y divide-line">
+      <ol className="stagger min-h-[19rem] divide-y divide-line">
         {loading && [0, 1, 2, 3, 4, 5].map((i) => <li key={i} className="px-5 py-3"><div className="skeleton h-5" /></li>)}
         {snap?.ledger?.latest.map((e) => (
           <li key={e.seq} className="flex items-baseline gap-3 px-5 py-2.5">

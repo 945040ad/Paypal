@@ -48,9 +48,9 @@ export default function Home() {
             signed. If a payment is disputed, the record settles it for whichever side is right.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/mandate" className="btn btn-primary btn-lg">
+            <Link href="/mandate" className="group btn btn-primary btn-lg">
               Sign your rules
-              <ArrowRight aria-hidden="true" size={16} strokeWidth={1.5} />
+              <ArrowRight aria-hidden="true" size={16} strokeWidth={1.5} className="arrow-nudge" />
             </Link>
             <Link href="/disputes" className="btn btn-lg">
               See a settled dispute
@@ -65,7 +65,7 @@ export default function Home() {
           <h2 className="text-xl font-semibold tracking-[-0.01em]">Try it in four steps</h2>
           <p className="mt-2 text-sm text-secondary">Each takes under a minute. The numbers match the sidebar</p>
         </div>
-        <ol className="card divide-y divide-line !p-0">
+        <ol className="card stagger divide-y divide-line !p-0">
           {STEPS.map((step, i) => (
             <li key={step.href}>
               <Link href={step.href} className="group flex items-start gap-4 px-5 py-4 transition-colors duration-150 hover:bg-surface-2">
@@ -76,7 +76,7 @@ export default function Home() {
                   <span className="block font-medium">{step.title}</span>
                   <span className="mt-1 block max-w-2xl text-sm leading-relaxed text-secondary">{step.body}</span>
                 </span>
-                <ArrowRight aria-hidden="true" size={16} strokeWidth={1.5} className="mt-1 shrink-0 text-muted transition-colors duration-150 group-hover:text-foreground" />
+                <ArrowRight aria-hidden="true" size={16} strokeWidth={1.5} className="arrow-nudge mt-1 shrink-0 text-muted group-hover:text-foreground" />
               </Link>
             </li>
           ))}
