@@ -14,10 +14,12 @@
     "agent": "tsx --env-file-if-exists=.env.local scripts/agent.ts",
     "desk": "tsx --env-file-if-exists=.env.local scripts/desk.ts",
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
-    "eval": "tsx --env-file-if-exists=.env.local scripts/eval.ts"
+    "eval": "tsx --env-file-if-exists=.env.local scripts/eval.ts",
+    "mcp:check": "tsx scripts/mcp-check.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.114",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@paypal/agent-toolkit": "^1.11.0",
     "ai": "^7.0.166",
     "better-sqlite3": "^13.0.3",

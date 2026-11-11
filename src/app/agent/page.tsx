@@ -10,6 +10,8 @@ type StreamEvent = AgentEvent | { type: "start"; mandate_id: string; mode: strin
 type DecisionEvent = Extract<AgentEvent, { type: "decision" }>;
 type Mode = "ENFORCE" | "OBSERVE";
 type Purchase = { intent_id: string; status: string; approve_url?: string; capture_id?: string };
+/** A purchase waiting for the person, wherever it was proposed from (this page or an agent connected over MCP). */
+type Waiting = { intent_id: string; product_id: string; quantity: number; total_cents: number; status: string; approve_url: string | null };
 
 const dollars = (cents: number | null | undefined) => (cents == null ? "-" : `$${(cents / 100).toFixed(2)}`);
 
@@ -79,9 +81,20 @@ export default function AgentPage() {
   const [running, setRunning] = useState(false);
   const [approving, setApproving] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+  const [waiting, setWaiting] = useState<Waiting[]>([]);
   const bottom = useRef<HTMLDivElement>(null);
 
+  const loadWaiting = useCallback(async () => {
+    try {
+      const json = await fetch("/api/purchases").then((r) => r.json());
+      if (Array.isArray(json.waiting)) setWaiting(json.waiting);
+    } catch {
+      // Keep the last list; the next poll tries again.
+    }
+  }, []);
+
   const refresh = useCallback(async () => {
+    void loadWaiting();
     try {
       const [m, s] = await Promise.all([fetch("/api/mandates/latest").then((r) => r.json()), fetch("/api/mode").then((r) => r.json())]);
       setMandate(m);
@@ -89,7 +102,13 @@ export default function AgentPage() {
     } catch {
       setNotice({ tone: "bad", text: "Could not load the mandate and gate mode. Reload the page." });
     }
-  }, []);
+  }, [loadWaiting]);
+
+  useEffect(() => {
+    // Purchases proposed by an agent connected over MCP show up here without a reload.
+    const timer = setInterval(() => void loadWaiting(), 5000);
+    return () => clearInterval(timer);
+  }, [loadWaiting]);
 
   useEffect(() => {
     // Returning from PayPal: /agent?intent=...&status=CAPTURED&capture=...
@@ -148,6 +167,7 @@ export default function AgentPage() {
       const purchase: Purchase | undefined = res.ok ? json : json.purchase;
       if (purchase) setPurchases((prev) => ({ ...prev, [intentId]: purchase }));
       if (!res.ok) setNotice({ tone: "bad", text: `Approval did not go through (${json.error}).` });
+      else if (purchase?.status === "CAPTURED") setNotice({ tone: "ok", text: `Approved and captured on the PayPal sandbox. Capture ${purchase.capture_id}.` });
     } catch {
       setNotice({ tone: "bad", text: "Approval did not go through. Check your connection and try again." });
     } finally {
@@ -157,6 +177,9 @@ export default function AgentPage() {
   }
 
   const m = mandate?.mandate;
+  // Purchases from this page's own run already have a card with a button below; list only the others.
+  const shownBelow = new Set(events.flatMap((e) => (e.type === "decision" ? [e.intent_id] : [])));
+  const waitingElsewhere = waiting.filter((w) => !shownBelow.has(w.intent_id));
 
   return (
     <main className="page max-w-4xl">
@@ -203,6 +226,34 @@ export default function AgentPage() {
           </span>
         </p>
       </section>
+
+      {waitingElsewhere.length > 0 && (
+        <section data-testid="waiting" className="card mt-6 text-sm">
+          <p className="font-semibold">Waiting for you</p>
+          <p className="mt-1 text-muted">Purchases an agent proposed that only you can move forward, including agents connected over MCP.</p>
+          <ul className="mt-3 space-y-3">
+            {waitingElsewhere.map((w) => (
+              <li key={w.intent_id} data-testid="waiting-item" className="flex flex-wrap items-center justify-between gap-3">
+                <span>
+                  {w.quantity} x {w.product_id}, total {dollars(w.total_cents)}
+                  <span className="ml-2 font-mono text-xs text-muted">{w.intent_id}</span>
+                </span>
+                {w.status === "AWAITING_APPROVAL" ? (
+                  <button type="button" disabled={approving === w.intent_id} onClick={() => approve(w.intent_id)} className="btn btn-warn">
+                    {approving === w.intent_id ? "Approving…" : `Approve ${dollars(w.total_cents)}`}
+                  </button>
+                ) : (
+                  w.approve_url && (
+                    <a href={w.approve_url} className="btn btn-primary">
+                      Approve in PayPal (sandbox buyer)
+                    </a>
+                  )
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <form onSubmit={run} className="mt-6">
         <label className="text-sm font-medium" htmlFor="task">
