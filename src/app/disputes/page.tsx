@@ -109,6 +109,31 @@ export default function DisputesPage() {
     };
   }, []);
 
+  // While this page is open it keeps itself current: the list every 30 seconds, and an open, unresolved
+  // dispute every 60 seconds (that one asks PayPal). A failed background refresh changes nothing on screen.
+  // The steady traffic also keeps a host that sleeps when idle awake through PayPal's long waits.
+  const selectedStatus = detail?.status ?? null;
+  useEffect(() => {
+    if (busy !== null) return;
+    const list = setInterval(() => {
+      call("/api/disputes")
+        .then((json) => setRows(json.disputes))
+        .catch(() => {});
+    }, 30_000);
+    const one =
+      selected && selectedStatus !== "RESOLVED"
+        ? setInterval(() => {
+            call(`/api/disputes/${selected}`)
+              .then((json: Detail) => setDetail((current) => (current && current.dispute_id === json.dispute_id ? json : current)))
+              .catch(() => {});
+          }, 60_000)
+        : undefined;
+    return () => {
+      clearInterval(list);
+      if (one) clearInterval(one);
+    };
+  }, [selected, selectedStatus, busy]);
+
   function open(id: string) {
     setSelected(id);
     setDetail(null);
@@ -164,9 +189,12 @@ export default function DisputesPage() {
             agent broke the rules, refund without argument.
           </p>
         </div>
-        <button type="button" onClick={sync} disabled={busy !== null} className={BUTTON}>
-          {busy === "sync" ? "Syncing…" : "Sync from PayPal"}
-        </button>
+        <div className="text-right">
+          <button type="button" onClick={sync} disabled={busy !== null} className={BUTTON}>
+            {busy === "sync" ? "Syncing…" : "Sync from PayPal"}
+          </button>
+          <p className="mt-2 text-xs text-muted">Updates on its own while this page is open.</p>
+        </div>
       </div>
 
       {notice && (
