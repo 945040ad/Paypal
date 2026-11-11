@@ -15,6 +15,7 @@ import { captureAuthorization, refundCapture, voidAuthorization } from "../paypa
 import { recheckOrder } from "../paypal/recheck";
 import { requestIdFor } from "../paypal/request-ids";
 import type { Product } from "../store/products";
+import { recordShipment } from "../store/shipments";
 
 export type PurchaseStatus =
   | "REJECTED" // never reached the gate (unknown product)
@@ -206,6 +207,7 @@ export function createPurchaseFlow(deps: FlowDeps): PurchaseFlow {
         payload: { capture_id: capture.id, capture_status: capture.status, authorization_id: row.authorization_id, order_id: row.order_id, total_cents: row.total_cents },
       });
       gate.markSpent(row.intent_id);
+      recordShipment(db, row.intent_id); // the demo store ships as soon as it is paid
       row = update(row.intent_id, { status: "CAPTURED", capture_id: capture.id });
     }
     return row;

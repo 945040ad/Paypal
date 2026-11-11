@@ -106,6 +106,22 @@ CREATE TABLE IF NOT EXISTS disputes (
   first_seen_at     TEXT NOT NULL,
   updated_at        TEXT NOT NULL
 );
+-- The demo store's shipment record for each captured order.
+CREATE TABLE IF NOT EXISTS shipments (
+  intent_id       TEXT PRIMARY KEY,
+  carrier         TEXT NOT NULL,
+  tracking_number TEXT NOT NULL,
+  shipped_at      TEXT NOT NULL
+);
+-- Evidence notes prepared for a dispute at a given stage, shown for review before filing.
+CREATE TABLE IF NOT EXISTS evidence_drafts (
+  dispute_id TEXT NOT NULL,
+  stage      TEXT NOT NULL,
+  notes      TEXT NOT NULL,
+  source     TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (dispute_id, stage)
+);
 -- The buyer's saved PayPal, used to pay with no buyer present.
 CREATE TABLE IF NOT EXISTS vault_tokens (
   user_id     TEXT PRIMARY KEY,

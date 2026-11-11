@@ -33,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/mandate">Mandate</Link>
             <Link href="/store">Store</Link>
             <Link href="/agent">Agent</Link>
+            <Link href="/disputes">Disputes</Link>
             <span className="ml-auto rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">PayPal sandbox only</span>
           </nav>
         </header>

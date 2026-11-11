@@ -1,5 +1,9 @@
 /** Server-side singletons and helpers shared by route handlers. */
+import { getModels } from "./ai/model";
+import { getPayPalReadTools } from "./ai/paypal-toolkit";
 import { getDb } from "./db";
+import { createDesk, type Desk } from "./evidence/desk";
+import { draftNotes } from "./evidence/notes";
 import { createGate, type Gate } from "./gate/gate";
 import { createLedger, type Ledger } from "./ledger/ledger";
 import { MandateError } from "./mandate/store";
@@ -31,6 +35,35 @@ export function getPurchaseFlow(): PurchaseFlow {
     catalog: PRODUCTS,
     merchantEmail,
     baseUrl: baseUrl.replace(/\/+$/, ""),
+  });
+}
+
+/** PayPal's Agent Toolkit, read-only. If it cannot be set up the analyst simply works from the ledger extract. */
+function analystTools() {
+  try {
+    return getPayPalReadTools();
+  } catch (err) {
+    console.error("PayPal Agent Toolkit unavailable:", err instanceof Error ? err.message : err);
+    return undefined;
+  }
+}
+
+/** The dispute desk wired to the real PayPal sandbox, with the analyst model drafting notes that code then checks. */
+export function getDesk(): Desk {
+  return createDesk({
+    db: getDb(),
+    ledger: getLedger(),
+    paypal: getPayPalClient(),
+    draftNotes: ({ classification, disputeId, detail, tracking }) =>
+      draftNotes(getModels(), {
+        classification,
+        extract: classification.extract,
+        disputeId,
+        tracking,
+        tools: analystTools(),
+        reason: detail.reason,
+        buyerMessage: (detail as { messages?: { posted_by?: string; content?: string }[] }).messages?.find((m) => m.posted_by === "BUYER")?.content,
+      }),
   });
 }
 
