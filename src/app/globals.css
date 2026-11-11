@@ -4,20 +4,23 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Direction: an evidence desk. Warm paper neutrals, ink text, quiet chrome. Colour is kept for meaning
- * (allowed, blocked, waiting) and one ember accent, so the gate's decision and the ledger are what stand out.
+ * Direction: an evidence desk in three colours. Cream and black do all the work; burnt orange goes on the
+ * one main button of a screen and nowhere else. Green, red and amber appear only where they carry meaning
+ * (allowed, blocked, waiting).
  */
 :root {
-  --background: #faf9f7; /* page */
-  --surface: #ffffff; /* card */
-  --surface-2: #f3f2ef; /* sidebar, table heads, quiet fills */
-  --surface-3: #eae8e3; /* pressed / active step */
-  --foreground: #1a1917; /* primary text */
-  --secondary: #55534e;
-  --muted: #73706a;
-  --line: rgba(26, 25, 23, 0.1); /* hairline */
-  --line-strong: rgba(26, 25, 23, 0.2);
-  --accent: #c2410c; /* ember; used sparingly */
+  --background: #f6f0e4; /* cream */
+  --surface: #fffdf8; /* card */
+  --surface-2: #efe7d8; /* table heads, quiet fills */
+  --surface-3: #e6dccb; /* pressed, tracks */
+  --foreground: #141210; /* black */
+  --secondary: #4b463e;
+  --muted: #6b6458;
+  --line: rgba(20, 18, 16, 0.12); /* hairline */
+  --line-strong: rgba(20, 18, 16, 0.24);
+  --accent: #bf4f00; /* burnt orange; the main button only */
+  --accent-hover: #a54400;
+  --accent-on-dark: #f08a3c; /* the logo slashes on the black sidebar */
   --ok: #15803d;
   --warn: #a16207;
   --bad: #c8281e;
@@ -131,14 +134,14 @@ html[data-gate="OBSERVE"] .shell-content {
 }
 .btn-primary,
 .btn-accent {
-  background: var(--foreground);
-  border-color: var(--foreground);
-  color: var(--background);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 .btn-primary:hover:not(:disabled),
 .btn-accent:hover:not(:disabled) {
-  background: #33312d;
-  border-color: #33312d;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 .btn-ok {
   background: var(--ok);

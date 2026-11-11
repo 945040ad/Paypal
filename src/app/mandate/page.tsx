@@ -146,7 +146,7 @@ export default function MandatePage() {
             type="button"
             onClick={draftFromSentence}
             disabled={draft.kind === "working" || !sentence.trim()}
-            className="btn btn-primary"
+            className="btn"
           >
             {draft.kind === "working" ? "Drafting…" : "Draft the rules with AI"}
           </button>

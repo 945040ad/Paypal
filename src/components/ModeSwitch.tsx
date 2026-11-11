@@ -57,7 +57,7 @@ export function ModeSwitch() {
       data-testid={`mode-${value}`}
       disabled={state === "loading" || state === "saving"}
       onClick={() => change(value)}
-      className={`h-7 flex-1 rounded-md px-3 text-sm font-medium transition-colors duration-150 disabled:cursor-wait ${mode === value ? activeClass : "text-secondary hover:text-foreground"}`}
+      className={`h-7 flex-1 rounded-md px-3 text-sm font-medium transition-colors duration-150 disabled:cursor-wait ${mode === value ? activeClass : "text-background/70 hover:text-background"}`}
     >
       {label}
     </button>
@@ -66,19 +66,19 @@ export function ModeSwitch() {
   return (
     <>
       <div>
-        <p className="flex items-center justify-between px-0.5 pb-2 text-xs text-muted">
+        <p className="flex items-center justify-between px-0.5 pb-2 text-xs text-background/50">
           <span>Gate mode</span>
           {state === "loading" && <span>Loading…</span>}
         </p>
-        <div role="radiogroup" aria-label="Gate mode" className="flex gap-0.5 rounded-lg border border-line bg-surface-3 p-0.5">
-          {option("ENFORCE", "Enforce", "bg-surface text-ok shadow-[0_0_0_1px_var(--line)]")}
-          {option("OBSERVE", "Observe", "bg-surface text-warn shadow-[0_0_0_1px_var(--line)]")}
+        <div role="radiogroup" aria-label="Gate mode" className="flex gap-0.5 rounded-lg border border-white/15 bg-white/10 p-0.5">
+          {option("ENFORCE", "Enforce", "bg-background text-ok")}
+          {option("OBSERVE", "Observe", "bg-background text-warn")}
         </div>
-        <p className="hidden px-0.5 pt-2 text-xs leading-relaxed text-muted lg:block">
+        <p className="hidden px-0.5 pt-2 text-xs leading-relaxed text-background/60 lg:block">
           {mode === "OBSERVE" ? "Records what it would have decided. Stops nothing." : "Stops anything outside your signed rules."}
         </p>
         {state === "error" && (
-          <span role="alert" className="mt-1 block text-xs text-bad">
+          <span role="alert" className="mt-1 block text-xs text-[#ff9b90]">
             Could not read or change the mode. Reload.
           </span>
         )}
@@ -87,7 +87,7 @@ export function ModeSwitch() {
         <div
           data-testid="observe-banner"
           role="status"
-          className="fixed inset-x-0 top-0 z-30 flex h-9 items-center justify-center border-b border-line bg-foreground px-6 text-center text-sm font-medium text-background lg:left-64"
+          className="fixed inset-x-0 top-0 z-30 flex h-9 items-center justify-center bg-[#f2c14e] px-6 text-center text-sm font-medium text-foreground lg:left-64"
         >
           Observe mode: the gate records what it would have decided but does not stop any payment.
         </div>

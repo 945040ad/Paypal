@@ -23,13 +23,13 @@ export function NavLinks() {
         href={href}
         aria-current={active ? "page" : undefined}
         className={`flex h-9 items-center gap-2.5 rounded-lg border px-2.5 text-sm transition-colors duration-150 ${
-          active ? "border-line bg-surface font-medium text-foreground" : "border-transparent text-secondary hover:bg-surface-3 hover:text-foreground"
+          active ? "border-white/15 bg-white/10 font-medium text-background" : "border-transparent text-background/70 hover:bg-white/5 hover:text-background"
         }`}
       >
         <Icon aria-hidden="true" size={16} strokeWidth={1.5} className="shrink-0" />
         <span className="flex-1">{label}</span>
         {step !== undefined && (
-          <span aria-hidden="true" className="font-mono text-xs text-muted">
+          <span aria-hidden="true" className="font-mono text-xs text-background/50">
             {step}
           </span>
         )}
@@ -39,9 +39,9 @@ export function NavLinks() {
 
   return (
     <>
-      <p className="hidden px-2.5 pb-2 text-xs text-muted lg:block">The demo, in order</p>
+      <p className="hidden px-2.5 pb-2 text-xs text-background/50 lg:block">The demo, in order</p>
       <div className="flex flex-wrap gap-1 lg:flex-col">{STEPS.map((s, i) => row(s, i + 1))}</div>
-      <p className="hidden px-2.5 pb-2 pt-6 text-xs text-muted lg:block">Also</p>
+      <p className="hidden px-2.5 pb-2 pt-6 text-xs text-background/50 lg:block">Also</p>
       <div className="flex flex-wrap gap-1 lg:flex-col">{OTHER.map((s) => row(s))}</div>
     </>
   );

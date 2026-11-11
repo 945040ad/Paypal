@@ -25,9 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col lg:flex-row">
-        <aside className="z-20 flex shrink-0 flex-col gap-4 border-b border-line bg-surface-2 p-4 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:gap-0 lg:border-b-0 lg:border-r">
+        <aside className="z-20 flex shrink-0 flex-col gap-4 bg-foreground p-4 text-background lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:gap-0">
           <Link href="/" className="flex h-9 items-center px-2.5 font-mono text-base font-semibold tracking-tight">
-            <span className="text-accent">{"//"}</span>VERDICT
+            <span className="text-[var(--accent-on-dark)]">{"//"}</span>VERDICT
           </Link>
           <nav aria-label="Main" className="lg:mt-6">
             <Suspense>
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </nav>
           <div className="lg:mt-auto">
             <ModeSwitch />
-            <p className="mt-4 hidden border-t border-line px-0.5 pt-4 text-xs leading-relaxed text-muted lg:block">
+            <p className="mt-4 hidden border-t border-white/15 px-0.5 pt-4 text-xs leading-relaxed text-background/60 lg:block">
               PayPal sandbox only. No real money moves and no real goods are sold.
             </p>
           </div>
