@@ -46,3 +46,6 @@ next-env.d.ts
 
 # template with no values
 !.env.example
+
+# demo video working files
+/video/
