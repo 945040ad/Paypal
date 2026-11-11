@@ -1,0 +1,658 @@
+{
+  "exported_at": "2026-11-11T09:05:54.752Z",
+  "note": "Real PayPal sandbox history recorded while building Verdict. Sandbox IDs and test accounts only.",
+  "mandate": {
+    "mandate": {
+      "id": "mnd_9eb37f8a2b3aecd3",
+      "version": 1,
+      "user_id": "demo-user",
+      "currency": "USD",
+      "per_purchase_cap_cents": 4000,
+      "total_budget_cents": 10000,
+      "approval_threshold_cents": 3000,
+      "allowed_merchants": [
+        "demo-store"
+      ],
+      "allowed_categories": [
+        "keyboards",
+        "cables"
+      ],
+      "max_quantity_per_item": 2,
+      "expires_at": "2026-11-17T19:34:34.220Z",
+      "created_at": "2026-11-10T19:34:34.220Z",
+      "nonce": "45b3a95176775a9bb177088694a7e0e4"
+    },
+    "signature": "6ZSJid6tYO7KtbWzRndmcP7UfRN6YOk5OyGzFlE_7jPnjQt76KLqqxnDjrMUhNldrZ6Fd-OlFr--OC7wWiIQfw",
+    "public_key_jwk": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "algS_6zYxuC9x6DqvD50Afhj-lx8sfNFXIlKwMfd1dg",
+      "y": "avaTR1flXjzahwYjV4esXbJO2wXdn5DexFYA2plqTt8"
+    }
+  },
+  "entries": [
+    {
+      "seq": 35,
+      "ts": "2026-11-10T19:34:34.234Z",
+      "type": "MANDATE_SIGNED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": null,
+      "payload": {
+        "mandate": {
+          "allowed_categories": [
+            "keyboards",
+            "cables"
+          ],
+          "allowed_merchants": [
+            "demo-store"
+          ],
+          "approval_threshold_cents": 3000,
+          "created_at": "2026-11-10T19:34:34.220Z",
+          "currency": "USD",
+          "expires_at": "2026-11-17T19:34:34.220Z",
+          "id": "mnd_9eb37f8a2b3aecd3",
+          "max_quantity_per_item": 2,
+          "nonce": "45b3a95176775a9bb177088694a7e0e4",
+          "per_purchase_cap_cents": 4000,
+          "total_budget_cents": 10000,
+          "user_id": "demo-user",
+          "version": 1
+        },
+        "public_key_jwk": {
+          "crv": "P-256",
+          "kty": "EC",
+          "x": "algS_6zYxuC9x6DqvD50Afhj-lx8sfNFXIlKwMfd1dg",
+          "y": "avaTR1flXjzahwYjV4esXbJO2wXdn5DexFYA2plqTt8"
+        },
+        "signature": "6ZSJid6tYO7KtbWzRndmcP7UfRN6YOk5OyGzFlE_7jPnjQt76KLqqxnDjrMUhNldrZ6Fd-OlFr--OC7wWiIQfw"
+      }
+    },
+    {
+      "seq": 36,
+      "ts": "2026-11-10T19:36:09.174Z",
+      "type": "INTENT",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "payload": {
+        "category": "keyboards",
+        "merchant": "demo-store",
+        "mode": "ENFORCE",
+        "product_id": "kb-compact-60",
+        "product_name": "Compact 60% Mechanical Keyboard",
+        "quantity": 1,
+        "shipping_cents": 400,
+        "total_cents": 2900,
+        "unit_price_cents": 2500
+      }
+    },
+    {
+      "seq": 37,
+      "ts": "2026-11-10T19:36:09.175Z",
+      "type": "DECISION",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "payload": {
+        "decision": "ALLOW",
+        "mode": "ENFORCE",
+        "rule": null,
+        "rules_passed": 7,
+        "total_cents": 2900
+      }
+    },
+    {
+      "seq": 38,
+      "ts": "2026-11-10T19:36:12.953Z",
+      "type": "ORDER_CREATED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "payload": {
+        "buyer_present": false,
+        "currency": "USD",
+        "custom_id": "mnd_9eb37f8a2b3aecd3:int_6e867ddf22ad8b0e",
+        "order_id": "3XA65815JR5884301",
+        "total_cents": 2900
+      }
+    },
+    {
+      "seq": 39,
+      "ts": "2026-11-10T19:36:12.954Z",
+      "type": "AUTHORIZED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "payload": {
+        "authorization_id": "3YD80079RJ214282R",
+        "order_id": "3XA65815JR5884301",
+        "total_cents": 2900,
+        "vault_saved": false
+      }
+    },
+    {
+      "seq": 40,
+      "ts": "2026-11-10T19:36:13.722Z",
+      "type": "RECHECK_OK",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "payload": {
+        "order_id": "3XA65815JR5884301",
+        "total_cents": 2900
+      }
+    },
+    {
+      "seq": 41,
+      "ts": "2026-11-10T19:36:16.610Z",
+      "type": "CAPTURED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "payload": {
+        "authorization_id": "3YD80079RJ214282R",
+        "capture_id": "59T7813614487831B",
+        "capture_status": "COMPLETED",
+        "order_id": "3XA65815JR5884301",
+        "total_cents": 2900
+      }
+    },
+    {
+      "seq": 46,
+      "ts": "2026-11-10T19:38:19.691Z",
+      "type": "INTENT",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_a6908e190c52c7eb",
+      "payload": {
+        "category": "cables",
+        "merchant": "demo-store",
+        "mode": "ENFORCE",
+        "product_id": "cable-coiled-aviator",
+        "product_name": "Coiled Aviator Keyboard Cable",
+        "quantity": 10,
+        "shipping_cents": 0,
+        "total_cents": 12000,
+        "unit_price_cents": 1200
+      }
+    },
+    {
+      "seq": 47,
+      "ts": "2026-11-10T19:38:19.692Z",
+      "type": "DECISION",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_a6908e190c52c7eb",
+      "payload": {
+        "decision": "BLOCK",
+        "mode": "ENFORCE",
+        "rule": "QUANTITY_LIMIT",
+        "rules_passed": 3,
+        "total_cents": 12000
+      }
+    },
+    {
+      "seq": 48,
+      "ts": "2026-11-10T19:42:26.327Z",
+      "type": "INTENT",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "category": "cables",
+        "merchant": "demo-store",
+        "mode": "ENFORCE",
+        "product_id": "cable-hdmi-2m",
+        "product_name": "HDMI 2.1 Cable, 2 m",
+        "quantity": 1,
+        "shipping_cents": 0,
+        "total_cents": 1400,
+        "unit_price_cents": 1400
+      }
+    },
+    {
+      "seq": 49,
+      "ts": "2026-11-10T19:42:26.329Z",
+      "type": "DECISION",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "decision": "ALLOW",
+        "mode": "ENFORCE",
+        "rule": null,
+        "rules_passed": 7,
+        "total_cents": 1400
+      }
+    },
+    {
+      "seq": 50,
+      "ts": "2026-11-10T19:42:30.294Z",
+      "type": "ORDER_CREATED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "buyer_present": false,
+        "currency": "USD",
+        "custom_id": "mnd_9eb37f8a2b3aecd3:int_227e2d3bd57a3d28",
+        "order_id": "12M00385082471503",
+        "total_cents": 1400
+      }
+    },
+    {
+      "seq": 51,
+      "ts": "2026-11-10T19:42:30.295Z",
+      "type": "AUTHORIZED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "authorization_id": "6S468091BR863412A",
+        "order_id": "12M00385082471503",
+        "total_cents": 1400,
+        "vault_saved": false
+      }
+    },
+    {
+      "seq": 52,
+      "ts": "2026-11-10T19:42:31.776Z",
+      "type": "RECHECK_OK",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "order_id": "12M00385082471503",
+        "total_cents": 1400
+      }
+    },
+    {
+      "seq": 53,
+      "ts": "2026-11-10T19:42:34.595Z",
+      "type": "CAPTURED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "authorization_id": "6S468091BR863412A",
+        "capture_id": "6D457443W5985701S",
+        "capture_status": "COMPLETED",
+        "order_id": "12M00385082471503",
+        "total_cents": 1400
+      }
+    },
+    {
+      "seq": 54,
+      "ts": "2026-11-10T19:42:35.391Z",
+      "type": "INTENT",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "category": "keyboards",
+        "merchant": "demo-store",
+        "mode": "OBSERVE",
+        "product_id": "kb-flagship-tkl",
+        "product_name": "Flagship Wireless TKL Keyboard",
+        "quantity": 1,
+        "shipping_cents": 0,
+        "total_cents": 8900,
+        "unit_price_cents": 8900
+      }
+    },
+    {
+      "seq": 55,
+      "ts": "2026-11-10T19:42:35.394Z",
+      "type": "DECISION",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "decision": "BLOCK",
+        "mode": "OBSERVE",
+        "rule": "PER_PURCHASE_CAP",
+        "rules_passed": 4,
+        "total_cents": 8900
+      }
+    },
+    {
+      "seq": 56,
+      "ts": "2026-11-10T19:42:35.394Z",
+      "type": "VIOLATION",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "category": "keyboards",
+        "merchant": "demo-store",
+        "quantity": 1,
+        "rule": "PER_PURCHASE_CAP",
+        "total_cents": 8900
+      }
+    },
+    {
+      "seq": 57,
+      "ts": "2026-11-10T19:42:38.459Z",
+      "type": "ORDER_CREATED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "buyer_present": false,
+        "currency": "USD",
+        "custom_id": "mnd_9eb37f8a2b3aecd3:int_1b5f0de07fd3f422",
+        "order_id": "59F203131B345783H",
+        "total_cents": 8900
+      }
+    },
+    {
+      "seq": 58,
+      "ts": "2026-11-10T19:42:38.459Z",
+      "type": "AUTHORIZED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "authorization_id": "02P66751JJ382845S",
+        "order_id": "59F203131B345783H",
+        "total_cents": 8900,
+        "vault_saved": false
+      }
+    },
+    {
+      "seq": 59,
+      "ts": "2026-11-10T19:42:40.398Z",
+      "type": "RECHECK_OK",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "order_id": "59F203131B345783H",
+        "total_cents": 8900
+      }
+    },
+    {
+      "seq": 60,
+      "ts": "2026-11-10T19:42:42.719Z",
+      "type": "CAPTURED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "authorization_id": "02P66751JJ382845S",
+        "capture_id": "02M07087YF5997353",
+        "capture_status": "COMPLETED",
+        "order_id": "59F203131B345783H",
+        "total_cents": 8900
+      }
+    },
+    {
+      "seq": 61,
+      "ts": "2026-11-10T19:51:08.001Z",
+      "type": "DISPUTE_OPENED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "amount_cents": 8900,
+        "capture_id": "02M07087YF5997353",
+        "custom": "mnd_9eb37f8a2b3aecd3:int_1b5f0de07fd3f422",
+        "dispute_id": "PP-R-BQE-10198182",
+        "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+        "stage": "INQUIRY",
+        "status": "WAITING_FOR_SELLER_RESPONSE"
+      }
+    },
+    {
+      "seq": 62,
+      "ts": "2026-11-10T19:51:09.104Z",
+      "type": "DISPUTE_OPENED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "amount_cents": 1400,
+        "capture_id": "6D457443W5985701S",
+        "custom": "mnd_9eb37f8a2b3aecd3:int_227e2d3bd57a3d28",
+        "dispute_id": "PP-R-WSK-10198178",
+        "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+        "stage": "INQUIRY",
+        "status": "WAITING_FOR_SELLER_RESPONSE"
+      }
+    },
+    {
+      "seq": 63,
+      "ts": "2026-11-11T06:50:01.925Z",
+      "type": "EVIDENCE_SUBMITTED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "cited_seqs": [
+          35,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          62
+        ],
+        "dispute_id": "PP-R-WSK-10198178",
+        "evidence_type": "PROOF_OF_FULFILLMENT",
+        "notes": "The transaction for dispute PP-R-WSK-10198178 was fully authorized by the buyer. On 2026-11-10, the buyer signed a spending mandate [#35]. Subsequent to this, an intent was proposed for 1 x HDMI 2.1 Cable (2 m) at a price of $14.00 [#48]. This request was reviewed by the security gate, which issued an ALLOW decision after confirming the transaction passed 7 rules [#49].\n\nThe purchase details were formalized through PayPal order 12M00385082471503 [#50] and received authorization [#51]. A recheck confirmed that the order was consistent with the gate's approval [#52], leading to the successful capture of $14.00 under capture 6D457443W5985701S [#53]. The merchandise was shipped via FEDEX under tracking number 629656409158. As evidenced by the ledger, the capture amount matches the mandate and the approved intent [#53]. The buyer opened the dispute [#62] despite having previously signed the spending mandate [#35] and the transaction being verified at multiple stages [#49, #52].",
+        "notes_source": "model",
+        "pdf_sha256": "394394b9de41f4266a912609ac2dbcec3a2db15523fca5fbbb066a07679a3229",
+        "stage": "INQUIRY"
+      }
+    },
+    {
+      "seq": 64,
+      "ts": "2026-11-11T06:50:14.317Z",
+      "type": "CLAIM_ACCEPTED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "amount_cents": 8900,
+        "cited_seqs": [
+          56
+        ],
+        "classification": "VIOLATION",
+        "dispute_id": "PP-R-BQE-10198182",
+        "refund": "FULL"
+      }
+    },
+    {
+      "seq": 65,
+      "ts": "2026-11-11T06:50:51.649Z",
+      "type": "DISPUTE_ESCALATED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "dispute_id": "PP-R-WSK-10198178",
+        "from_stage": "INQUIRY"
+      }
+    },
+    {
+      "seq": 66,
+      "ts": "2026-11-11T06:52:32.866Z",
+      "type": "DISPUTE_RESOLVED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "payload": {
+        "amount_cents": 8900,
+        "dispute_id": "PP-R-BQE-10198182",
+        "outcome": "RESOLVED_BUYER_FAVOUR"
+      }
+    },
+    {
+      "seq": 67,
+      "ts": "2026-11-11T06:54:33.347Z",
+      "type": "EVIDENCE_SUBMITTED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "cited_seqs": [
+          35,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          63
+        ],
+        "dispute_id": "PP-R-WSK-10198178",
+        "evidence_type": "OTHER",
+        "notes": "The buyer explicitly authorized this transaction by signing a spending mandate on 2026-11-10 [#35]. The purchase consisted of 1 x HDMI 2.1 Cable for a total of $14.00 [#48]. This transaction was reviewed and received an ALLOW decision from the gate system [#49]. Following this approval, PayPal order 12M00385082471503 was created for $14.00 [#50] and authorized [#51]. A system recheck confirmed that the PayPal order matched the gate's approval [#52], leading to the successful capture of $14.00 [#53]. Evidence of fulfillment for this order was submitted on 2026-11-11 [#63]. The item was shipped via FEDEX using tracking number 629656409158. The transaction was conducted entirely within the parameters of the buyer's signed mandate, and the captured amount matches the approved order.",
+        "notes_source": "model",
+        "pdf_sha256": "3a2f8c914e03d8d1b769d335b64c90334f30aeddf721e37a02876f508de312da",
+        "stage": "CHARGEBACK"
+      }
+    },
+    {
+      "seq": 68,
+      "ts": "2026-11-11T07:25:55.729Z",
+      "type": "DISPUTE_RESOLVED",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "payload": {
+        "amount_cents": 1400,
+        "dispute_id": "PP-R-WSK-10198178",
+        "outcome": "RESOLVED_SELLER_FAVOUR"
+      }
+    }
+  ],
+  "gate_decisions": [
+    {
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "decision": "ALLOW",
+      "rule": null,
+      "mode": "ENFORCE",
+      "total_cents": 2900,
+      "status": "SPENT",
+      "created_at": "2026-11-10T19:36:09.174Z",
+      "updated_at": "2026-11-10T19:36:16.610Z"
+    },
+    {
+      "intent_id": "int_a6908e190c52c7eb",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "decision": "BLOCK",
+      "rule": "QUANTITY_LIMIT",
+      "mode": "ENFORCE",
+      "total_cents": 12000,
+      "status": "BLOCKED",
+      "created_at": "2026-11-10T19:38:19.692Z",
+      "updated_at": "2026-11-10T19:38:19.692Z"
+    },
+    {
+      "intent_id": "int_227e2d3bd57a3d28",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "decision": "ALLOW",
+      "rule": null,
+      "mode": "ENFORCE",
+      "total_cents": 1400,
+      "status": "SPENT",
+      "created_at": "2026-11-10T19:42:26.327Z",
+      "updated_at": "2026-11-10T19:42:34.596Z"
+    },
+    {
+      "intent_id": "int_1b5f0de07fd3f422",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "decision": "BLOCK",
+      "rule": "PER_PURCHASE_CAP",
+      "mode": "OBSERVE",
+      "total_cents": 8900,
+      "status": "SPENT",
+      "created_at": "2026-11-10T19:42:35.392Z",
+      "updated_at": "2026-11-10T19:42:42.719Z"
+    }
+  ],
+  "purchases": [
+    {
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "user_id": "demo-user",
+      "product_id": "kb-compact-60",
+      "quantity": 1,
+      "total_cents": 2900,
+      "currency": "USD",
+      "custom_id": "mnd_9eb37f8a2b3aecd3:int_6e867ddf22ad8b0e",
+      "status": "CAPTURED",
+      "order_id": "3XA65815JR5884301",
+      "approve_url": null,
+      "authorization_id": "3YD80079RJ214282R",
+      "capture_id": "59T7813614487831B",
+      "refund_id": null,
+      "created_at": "2026-11-10T19:36:09.175Z",
+      "updated_at": "2026-11-10T19:36:16.610Z"
+    },
+    {
+      "intent_id": "int_227e2d3bd57a3d28",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "user_id": "demo-user",
+      "product_id": "cable-hdmi-2m",
+      "quantity": 1,
+      "total_cents": 1400,
+      "currency": "USD",
+      "custom_id": "mnd_9eb37f8a2b3aecd3:int_227e2d3bd57a3d28",
+      "status": "CAPTURED",
+      "order_id": "12M00385082471503",
+      "approve_url": null,
+      "authorization_id": "6S468091BR863412A",
+      "capture_id": "6D457443W5985701S",
+      "refund_id": null,
+      "created_at": "2026-11-10T19:42:26.329Z",
+      "updated_at": "2026-11-10T19:42:34.596Z"
+    },
+    {
+      "intent_id": "int_1b5f0de07fd3f422",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "user_id": "demo-user",
+      "product_id": "kb-flagship-tkl",
+      "quantity": 1,
+      "total_cents": 8900,
+      "currency": "USD",
+      "custom_id": "mnd_9eb37f8a2b3aecd3:int_1b5f0de07fd3f422",
+      "status": "CAPTURED",
+      "order_id": "59F203131B345783H",
+      "approve_url": null,
+      "authorization_id": "02P66751JJ382845S",
+      "capture_id": "02M07087YF5997353",
+      "refund_id": null,
+      "created_at": "2026-11-10T19:42:35.394Z",
+      "updated_at": "2026-11-10T19:42:42.719Z"
+    }
+  ],
+  "shipments": [
+    {
+      "intent_id": "int_1b5f0de07fd3f422",
+      "carrier": "FEDEX",
+      "tracking_number": "861075987068",
+      "shipped_at": "2026-11-10T19:51:04.503Z"
+    },
+    {
+      "intent_id": "int_227e2d3bd57a3d28",
+      "carrier": "FEDEX",
+      "tracking_number": "629656409158",
+      "shipped_at": "2026-11-10T19:51:04.503Z"
+    },
+    {
+      "intent_id": "int_6e867ddf22ad8b0e",
+      "carrier": "FEDEX",
+      "tracking_number": "834102025709",
+      "shipped_at": "2026-11-10T19:51:04.503Z"
+    }
+  ],
+  "disputes": [
+    {
+      "dispute_id": "PP-R-BQE-10198182",
+      "status": "RESOLVED",
+      "stage": "INQUIRY",
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "amount_cents": 8900,
+      "currency": "USD",
+      "capture_id": "02M07087YF5997353",
+      "custom": "mnd_9eb37f8a2b3aecd3:int_1b5f0de07fd3f422",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_1b5f0de07fd3f422",
+      "outcome": "RESOLVED_BUYER_FAVOUR",
+      "resolved_recorded": 1,
+      "first_seen_at": "2026-11-10T19:51:08.001Z",
+      "updated_at": "2026-11-11T07:25:53.942Z"
+    },
+    {
+      "dispute_id": "PP-R-WSK-10198178",
+      "status": "RESOLVED",
+      "stage": "CHARGEBACK",
+      "reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+      "amount_cents": 1400,
+      "currency": "USD",
+      "capture_id": "6D457443W5985701S",
+      "custom": "mnd_9eb37f8a2b3aecd3:int_227e2d3bd57a3d28",
+      "mandate_id": "mnd_9eb37f8a2b3aecd3",
+      "intent_id": "int_227e2d3bd57a3d28",
+      "outcome": "RESOLVED_SELLER_FAVOUR",
+      "resolved_recorded": 1,
+      "first_seen_at": "2026-11-10T19:51:09.103Z",
+      "updated_at": "2026-11-11T07:25:55.729Z"
+    }
+  ]
+}
