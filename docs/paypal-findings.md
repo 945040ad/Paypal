@@ -171,3 +171,23 @@ Command: `npm run purchase -- [productId] [quantity] [--observe] [--new-mandate]
 - The same call with made-up signature headers returns a non-success status, and the route answers 400.
 - The hosted database is separate from the local one, so a purchase made locally shows up on the host as
   `UNMATCHED_CAPTURE` (`NO_GATE_DECISION`). That is the intended behaviour for a capture the host never approved.
+
+## Phase 7: dispute desk (sandbox, 2026-11-10 to 11 UTC)
+
+| | Case A: inside the mandate | Case B: agent exceeded the mandate |
+| --- | --- | --- |
+| Purchase | HDMI cable, 14.00 USD, gate ALLOW (Enforce) | Flagship keyboard, 89.00 USD, gate would BLOCK on `PER_PURCHASE_CAP` (Observe), `VIOLATION` entry |
+| Capture | `6D457443W5985701S` | `02M07087YF5997353` |
+| Dispute | `PP-R-WSK-10198178` | `PP-R-BQE-10198182` |
+| Classifier | `IN_MANDATE` | `VIOLATION` |
+| Desk actions | `provide-evidence` PROOF_OF_FULFILLMENT + PDF, `escalate`, `provide-evidence` OTHER + PDF, `adjudicate` SELLER_FAVOR (clicked on /disputes) | `accept-claim` REFUND |
+| Outcome | `RESOLVED_SELLER_FAVOUR` | `RESOLVED_BUYER_FAVOUR` |
+
+- Timings for Case A matched Phase 1: claim stage 2.8 min after `escalate`; the `adjudicate` link appeared 28 min after
+  the claim-stage evidence (06:54:29 -> 07:22:49); `RESOLVED` 2.5 min after `adjudicate`. Case B resolved 2.3 min after `accept-claim`.
+- After the INQUIRY-stage evidence the dispute sat in `WAITING_FOR_BUYER_RESPONSE` and offered `escalate` and `accept_claim`.
+- With `adjudicate` offered, PayPal's links were `accept_claim, adjudicate` (the Phase 1 run also listed `require_evidence`).
+- `@paypal/agent-toolkit` 1.11.0 ships tools for AI SDK v4 (`parameters`), so `src/ai/paypal-toolkit.ts` adapts them to
+  the installed v7 (`inputSchema`). With only `disputes.list/get` and `orders.get` switched on, the toolkit exposes
+  exactly `get_dispute`, `list_disputes`, `get_order`; the analyst model called `get_dispute` and `get_order` on the sandbox.
+- Gemini free tier: per-minute quota errors are common. Notes drafting falls back across models, then to a fixed template.
