@@ -35,9 +35,9 @@ const STATUS_TEXT: Record<string, string> = {
 };
 
 const TONE: Record<string, { card: string; badge: string; label: string }> = {
-  ALLOW: { card: "border-ok bg-ok-soft", badge: "bg-ok text-white", label: "Allowed" },
-  ESCALATE: { card: "border-amber-400 bg-warn-soft", badge: "bg-amber-400 text-black", label: "Needs your approval" },
-  BLOCK: { card: "border-bad bg-bad-soft", badge: "bg-bad text-white", label: "Blocked" },
+  ALLOW: { card: "border-l-ok", badge: "text-ok", label: "Allowed" },
+  ESCALATE: { card: "border-l-warn", badge: "text-warn", label: "Needs your approval" },
+  BLOCK: { card: "border-l-bad", badge: "text-bad", label: "Blocked" },
 };
 
 /** One-click tasks, so nobody has to think of what to type. The last one walks into the planted injection. */
@@ -60,14 +60,14 @@ function DecisionCard({ event, purchase, onApprove, busy }: { event: DecisionEve
       data-decision={event.decision ?? "NONE"}
       data-rule={event.rule ?? ""}
       data-status={status}
-      className={`rise rounded-xl border-2 p-5 shadow-sm ${tone?.card ?? "border-line bg-surface"}`}
+      className={`rise rounded-xl border border-l-[3px] border-line bg-surface p-5 ${tone?.card ?? ""}`}
     >
       <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${tone?.badge ?? "bg-surface-2 text-muted"}`}>
+        <span className={`font-mono text-sm font-semibold ${tone?.badge ?? "text-muted"}`}>
           Gate: {event.decision ?? "not reached"}
         </span>
         {tone && <span>{tone.label}</span>}
-        {event.rule && <span className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-xs font-medium">rule {event.rule}</span>}
+        {event.rule && <span className="font-mono text-xs text-muted">rule {event.rule}</span>}
       </p>
       <p className="mt-3 text-base font-medium">
         {event.quantity} x {event.product_id}, total {dollars(event.total_cents)}
@@ -75,8 +75,8 @@ function DecisionCard({ event, purchase, onApprove, busy }: { event: DecisionEve
       </p>
       <p className="mt-1 text-sm text-muted">{STATUS_TEXT[status] ?? status}</p>
       {captureId && (
-        <p className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white/80 px-3 py-1.5 font-mono text-xs">
-          <span className="font-sans font-semibold text-ok">PayPal capture</span> {captureId}
+        <p className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-1.5 font-mono text-xs">
+          <span className="font-sans font-medium text-ok">PayPal capture</span> {captureId}
         </p>
       )}
       <p className="mt-2 font-mono text-xs text-muted">{event.intent_id}</p>
@@ -142,7 +142,7 @@ export default function AgentPage() {
     else if (status) setNotice({ tone: "bad", text: `Purchase ${p.get("intent")} ended as ${status}.` });
     if (status || p.get("error")) window.history.replaceState(null, "", "/agent");
     void refresh();
-    // Stay in step with the Enforce / Observe switch in the header.
+    // Stay in step with the Enforce / Observe switch in the sidebar.
     const onMode = (e: Event) => setMode((e as CustomEvent<Mode>).detail);
     window.addEventListener(MODE_EVENT, onMode);
     return () => window.removeEventListener(MODE_EVENT, onMode);
@@ -205,7 +205,7 @@ export default function AgentPage() {
   const waitingElsewhere = waiting.filter((w) => !shownBelow.has(w.intent_id));
 
   return (
-    <main className="page max-w-4xl">
+    <main className="page">
       <p className="eyebrow">Step 2</p>
       <h1 className="page-title mt-1">Shopping agent</h1>
       <p className="lede">
@@ -230,7 +230,7 @@ export default function AgentPage() {
             <p>
               <span className="font-semibold">No signed mandate yet.</span> <span className="text-muted">The agent cannot shop until you sign your rules.</span>
             </p>
-            <Link href="/mandate" className="btn btn-accent">
+            <Link href="/mandate" className="btn btn-primary">
               Sign your rules
             </Link>
           </div>
@@ -247,26 +247,25 @@ export default function AgentPage() {
                 </p>
                 <p className="text-xs text-muted">{dollars(Math.max(0, m.total_budget_cents - (mandate.committed_cents ?? 0)))} left</p>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2" role="presentation">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-sm bg-surface-3" role="presentation">
                 <div
-                  className="h-full rounded-full bg-accent transition-[width] duration-700"
+                  className="h-full rounded-sm bg-foreground"
                   style={{ width: `${Math.min(100, ((mandate.committed_cents ?? 0) / m.total_budget_cents) * 100)}%` }}
                 />
               </div>
             </div>
             <ul className="mt-4 flex flex-wrap gap-2">
-              <li className="badge">Up to {dollars(m.per_purchase_cap_cents)} per purchase</li>
-              <li className="badge">Asks you above {dollars(m.approval_threshold_cents)}</li>
-              <li className="badge">At most {m.max_quantity_per_item} per item</li>
-              <li className="badge">Only {m.allowed_categories.join(", ")}</li>
+              <li className="rounded-md border border-line px-2 py-0.5 text-xs text-secondary">Up to {dollars(m.per_purchase_cap_cents)} per purchase</li>
+              <li className="rounded-md border border-line px-2 py-0.5 text-xs text-secondary">Asks you above {dollars(m.approval_threshold_cents)}</li>
+              <li className="rounded-md border border-line px-2 py-0.5 text-xs text-secondary">At most {m.max_quantity_per_item} per item</li>
+              <li className="rounded-md border border-line px-2 py-0.5 text-xs text-secondary">Only {m.allowed_categories.join(", ")}</li>
             </ul>
           </>
         )}
         <p data-testid="agent-mode" className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4 text-sm">
           <span className={`badge ${mode === "OBSERVE" ? "badge-warn" : "badge-ok"}`}>Gate mode: {mode === null ? "loading…" : mode === "OBSERVE" ? "Observe" : "Enforce"}.</span>
           <span className="text-muted">
-            {mode === "OBSERVE" ? "The gate only records; it does not stop payments." : "The gate stops anything outside the mandate."} Change it with the switch
-            at the top of the page.
+            {mode === "OBSERVE" ? "The gate only records; it does not stop payments." : "The gate stops anything outside the mandate."} Change it with the switch in the sidebar.
           </span>
         </p>
       </section>
@@ -317,7 +316,7 @@ export default function AgentPage() {
             {running ? "Agent is working…" : "Run agent"}
           </button>
           <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-            <input type="checkbox" name="defences" checked={defences} onChange={(e) => setDefences(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
+            <input type="checkbox" name="defences" checked={defences} onChange={(e) => setDefences(e.target.checked)} className="h-4 w-4 accent-[var(--foreground)]" />
             Agent&apos;s own injection defences
           </label>
           <span className="text-xs text-muted">Turn off to simulate an agent that trusts whatever a product page says. The gate is unaffected.</span>

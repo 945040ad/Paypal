@@ -24,30 +24,24 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
-        <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-[68rem] flex-wrap items-center gap-x-5 gap-y-2 px-6 py-2.5">
-            <Link href="/" className="mr-1 font-mono text-base font-bold tracking-tight">
-              <span className="text-accent">{"//"}</span>VERDICT
-            </Link>
-            <nav aria-label="Main" className="flex flex-wrap items-center gap-1">
-              <Suspense>
-                <NavLinks />
-              </Suspense>
-            </nav>
-            <div className="ml-auto flex items-center gap-3">
-              <ModeSwitch />
-              <span className="badge badge-accent" title="No real money moves and no real goods are sold.">
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
-                PayPal sandbox
-              </span>
-            </div>
+      <body className="flex min-h-full flex-col lg:flex-row">
+        <aside className="z-20 flex shrink-0 flex-col gap-4 border-b border-line bg-surface-2 p-4 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:gap-0 lg:border-b-0 lg:border-r">
+          <Link href="/" className="flex h-9 items-center px-2.5 font-mono text-base font-semibold tracking-tight">
+            <span className="text-accent">{"//"}</span>VERDICT
+          </Link>
+          <nav aria-label="Main" className="lg:mt-6">
+            <Suspense>
+              <NavLinks />
+            </Suspense>
+          </nav>
+          <div className="lg:mt-auto">
+            <ModeSwitch />
+            <p className="mt-4 hidden border-t border-line px-0.5 pt-4 text-xs leading-relaxed text-muted lg:block">
+              PayPal sandbox only. No real money moves and no real goods are sold.
+            </p>
           </div>
-        </header>
-        <div className="flex-1 pt-4">{children}</div>
-        <footer className="border-t border-line px-6 py-5 text-center text-xs text-muted">
-          Demo on the PayPal sandbox. No real money moves and no real goods are sold.
-        </footer>
+        </aside>
+        <div className="shell-content min-w-0 flex-1">{children}</div>
       </body>
     </html>
   );

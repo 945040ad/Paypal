@@ -11,7 +11,7 @@ const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
 export default function ProductPage({ params }: PageProps<"/store/[id]">) {
   return (
-    <main className="page max-w-3xl">
+    <main className="page">
       <Link href="/store" className="text-sm text-muted hover:underline">
         Back to the store
       </Link>
@@ -56,7 +56,7 @@ async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
           <span data-testid="hidden-injection" aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden text-[1px] text-transparent">
             {product.hidden_text}
           </span>
-          <details className="mt-6 rounded-[0.875rem] border border-dashed border-amber-400 bg-warn-soft p-5 text-sm">
+          <details className="mt-6 rounded-xl border border-dashed border-line-strong p-5 text-sm">
             <summary className="cursor-pointer font-semibold text-warn">Demo note: this page hides text aimed at AI agents</summary>
             <p className="mt-3 text-muted">A person cannot see the text below on the page. An agent reading the page can:</p>
             <p className="mt-2 font-mono text-xs">{product.hidden_text}</p>

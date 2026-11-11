@@ -24,6 +24,7 @@
     "ai": "^7.0.166",
     "better-sqlite3": "^13.0.3",
     "canonicalize": "^5.1.0",
+    "lucide-react": "^1.72.0",
     "next": "16.4.6",
     "pdf-lib": "^1.17.1",
     "react": "19.3.0",

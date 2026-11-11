@@ -3,7 +3,7 @@
 /** Shown when a page fails to render. Nothing about the failure is exposed beyond a reference code. */
 export default function PageError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="page max-w-3xl">
+    <main className="page">
       <p className="eyebrow">Something went wrong</p>
       <h1 className="page-title mt-1">This page could not be shown</h1>
       <p className="lede">Your data is safe: the ledger is only ever added to, so nothing was lost or changed. Try the page again.</p>

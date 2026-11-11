@@ -3,24 +3,25 @@
 /* One light theme, so the app looks the same on every machine and in screen recordings. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Direction: an evidence desk. Warm paper neutrals, ink text, quiet chrome. Colour is kept for meaning
+ * (allowed, blocked, waiting) and one ember accent, so the gate's decision and the ledger are what stand out.
+ */
 :root {
-  --background: #f5f6f8;
-  --foreground: #0f1222; /* ink */
-  --surface: #ffffff;
-  --surface-2: #f1f3f7; /* quiet fill for chips, code and table heads */
-  --line: #e3e6ed;
-  --muted: #5b6275;
-  --accent: #f0531c; /* recorder orange */
-  --accent-soft: #fff1ea;
-  --ok: #0b8a55;
-  --ok-soft: #e7f6ee;
-  --warn: #b45309;
-  --warn-soft: #fff5e1;
-  --bad: #c62828;
-  --bad-soft: #fdecec;
-  --shadow-sm: 0 1px 2px rgba(15, 18, 34, 0.05);
-  --shadow: 0 1px 2px rgba(15, 18, 34, 0.04), 0 8px 24px -12px rgba(15, 18, 34, 0.12);
-  --radius: 0.875rem;
+  --background: #faf9f7; /* page */
+  --surface: #ffffff; /* card */
+  --surface-2: #f3f2ef; /* sidebar, table heads, quiet fills */
+  --surface-3: #eae8e3; /* pressed / active step */
+  --foreground: #1a1917; /* primary text */
+  --secondary: #55534e;
+  --muted: #73706a;
+  --line: rgba(26, 25, 23, 0.1); /* hairline */
+  --line-strong: rgba(26, 25, 23, 0.2);
+  --accent: #c2410c; /* ember; used sparingly */
+  --ok: #15803d;
+  --warn: #a16207;
+  --bad: #c8281e;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -28,16 +29,20 @@
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-secondary: var(--secondary);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
   --color-ok: var(--ok);
-  --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
   --color-bad: var(--bad);
-  --color-bad-soft: var(--bad-soft);
+  /* Kept as names used across pages; they resolve to quiet neutrals, not tinted washes. */
+  --color-accent-soft: var(--surface-2);
+  --color-ok-soft: var(--surface);
+  --color-warn-soft: var(--surface);
+  --color-bad-soft: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -46,98 +51,94 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--foreground);
   outline-offset: 2px;
+}
+
+/* While the gate only observes, a bar says so above the content; make room for it. */
+html[data-gate="OBSERVE"] .shell-content {
+  padding-top: 2.25rem;
 }
 
 /* Shared building blocks. In the components layer so a utility class on the same element wins. */
 @layer components {
 .page {
   width: 100%;
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 4rem;
+  max-width: 76rem;
+  padding: 2.5rem 2rem 4rem;
 }
 .page-title {
-  font-size: 2rem;
-  line-height: 1.15;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 .lede {
-  margin-top: 0.625rem;
-  max-width: 44rem;
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.6;
+  margin-top: 0.5rem;
+  max-width: 42rem;
+  color: var(--secondary);
+  font-size: 0.9375rem;
+  line-height: 1.55;
 }
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1.375rem;
-  box-shadow: var(--shadow);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
 }
+/* A small label above a title. Sentence case, quiet. */
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: var(--muted);
 }
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 0.625rem;
-  border: 1px solid var(--line);
-  padding: 0.625rem 1.125rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  line-height: 1.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--line-strong);
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   background: var(--surface);
   color: var(--foreground);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: background 140ms, color 140ms, border-color 140ms, transform 140ms, box-shadow 140ms;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease), transform 150ms var(--ease);
 }
 .btn:hover:not(:disabled) {
-  border-color: #c5cad6;
   background: var(--surface-2);
 }
 .btn:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
-.btn-primary {
+.btn-lg {
+  height: 2.75rem;
+  padding: 0 1.125rem;
+  font-size: 0.9375rem;
+}
+.btn-primary,
+.btn-accent {
   background: var(--foreground);
   border-color: var(--foreground);
-  color: #fff;
+  color: var(--background);
 }
-.btn-primary:hover:not(:disabled) {
-  background: #23273d;
-  border-color: #23273d;
-  box-shadow: 0 6px 16px -6px rgba(15, 18, 34, 0.45);
-}
-.btn-accent {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
+.btn-primary:hover:not(:disabled),
 .btn-accent:hover:not(:disabled) {
-  background: #d94511;
-  border-color: #d94511;
-  box-shadow: 0 6px 16px -6px rgba(240, 83, 28, 0.6);
+  background: #33312d;
+  border-color: #33312d;
 }
 .btn-ok {
   background: var(--ok);
@@ -150,141 +151,132 @@ body {
   color: #fff;
 }
 .btn-warn {
-  background: var(--warn-soft);
-  border-color: #f0c98a;
+  border-color: var(--warn);
   color: var(--warn);
 }
-.btn-ok:hover:not(:disabled),
-.btn-bad:hover:not(:disabled) {
-  filter: brightness(0.92);
-  color: #fff;
-}
 .btn-ok:hover:not(:disabled) {
-  background: var(--ok);
-  border-color: var(--ok);
+  background: #126c33;
+  border-color: #126c33;
 }
 .btn-bad:hover:not(:disabled) {
-  background: var(--bad);
-  border-color: var(--bad);
+  background: #a82018;
+  border-color: #a82018;
 }
 .btn-warn:hover:not(:disabled) {
   background: var(--warn);
-  border-color: var(--warn);
   color: #fff;
 }
 .notice {
-  border-radius: 0.75rem;
+  border-radius: 0.625rem;
   border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
   background: var(--surface);
-  padding: 0.875rem 1.125rem;
-  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 .notice-ok {
-  border-color: #b9e3cd;
-  background: var(--ok-soft);
+  border-left-color: var(--ok);
 }
 .notice-bad {
-  border-color: #f3c0c0;
-  background: var(--bad-soft);
+  border-left-color: var(--bad);
   color: var(--bad);
 }
 .notice-warn {
-  border-color: #f3d9a4;
-  background: var(--warn-soft);
+  border-left-color: var(--warn);
 }
 .field {
   margin-top: 0.375rem;
   width: 100%;
-  border-radius: 0.625rem;
-  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  border: 1px solid var(--line-strong);
   background: var(--surface);
-  padding: 0.625rem 0.875rem;
-  font-size: 0.925rem;
-  box-shadow: var(--shadow-sm);
-  transition: border-color 140ms, box-shadow 140ms;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  transition: border-color 150ms var(--ease);
 }
 .field:hover {
-  border-color: #c5cad6;
+  border-color: var(--muted);
 }
 .field:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(240, 83, 28, 0.14);
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+  border-color: var(--foreground);
 }
+/* Meta text: counts, states, categories. Quiet text, not a pill. */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  border-radius: 999px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--surface-2);
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
   color: var(--muted);
 }
 .badge-ok {
-  background: var(--ok-soft);
   color: var(--ok);
+  font-weight: 500;
 }
 .badge-warn {
-  background: var(--warn-soft);
   color: var(--warn);
+  font-weight: 500;
 }
 .badge-bad {
-  background: var(--bad-soft);
   color: var(--bad);
+  font-weight: 500;
 }
 .badge-accent {
-  background: var(--accent-soft);
   color: var(--accent);
+  font-weight: 500;
 }
+/* A suggestion the user can click to fill a field. */
 .chip {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
+  height: 1.75rem;
+  border-radius: 0.5rem;
   border: 1px solid var(--line);
   background: var(--surface);
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  color: var(--foreground);
+  padding: 0 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--secondary);
   cursor: pointer;
-  transition: border-color 140ms, background 140ms, color 140ms;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease);
 }
 .chip:hover:not(:disabled) {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+  color: var(--foreground);
 }
 .chip:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
+}
+.kbd-id {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 .skeleton {
   border-radius: 0.5rem;
-  background: linear-gradient(90deg, #e9ecf2 25%, #f4f6f9 50%, #e9ecf2 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s linear infinite;
+  background: var(--surface-3);
 }
+/* The one entrance: a result arriving. */
 .rise {
-  animation: rise 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: rise 360ms var(--ease) both;
 }
 }
 
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .skeleton,
   .rise {
     animation: none;
+  }
+  .btn {
+    transition: none;
   }
 }

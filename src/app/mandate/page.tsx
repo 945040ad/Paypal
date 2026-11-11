@@ -115,7 +115,7 @@ export default function MandatePage() {
   }
 
   return (
-    <main className="page max-w-3xl">
+    <main className="page">
       <p className="eyebrow">Step 1</p>
       <h1 className="page-title mt-1">Mandate</h1>
       <p className="lede">
@@ -125,7 +125,7 @@ export default function MandatePage() {
 
       <section className="card mt-8">
         <label className="flex items-center gap-3 text-base font-semibold" htmlFor="sentence">
-          <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-sm text-white">
+          <span aria-hidden="true" className="font-mono text-sm font-normal text-muted">
             1
           </span>
           <span>
@@ -146,7 +146,7 @@ export default function MandatePage() {
             type="button"
             onClick={draftFromSentence}
             disabled={draft.kind === "working" || !sentence.trim()}
-            className="btn btn-accent"
+            className="btn btn-primary"
           >
             {draft.kind === "working" ? "Drafting…" : "Draft the rules with AI"}
           </button>
@@ -165,7 +165,7 @@ export default function MandatePage() {
 
       <form onSubmit={signAndSave} className="card mt-5 grid grid-cols-2 gap-4">
         <h2 className="col-span-2 flex items-center gap-3 text-base font-semibold">
-          <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-sm text-white">
+          <span aria-hidden="true" className="font-mono text-sm font-normal text-muted">
             2
           </span>
           <span>
@@ -228,7 +228,7 @@ export default function MandatePage() {
               Next: let the agent shop
             </a>
           </div>
-          <dl className="mt-4 grid grid-cols-[8rem_1fr] gap-y-1 rounded-lg bg-white/70 p-3 font-mono text-xs">
+          <dl className="mt-4 grid grid-cols-[8rem_1fr] gap-y-1 rounded-lg bg-surface-2 p-3 font-mono text-xs">
             <dt>Mandate</dt>
             <dd data-testid="mandate-id">{result.mandateId}</dd>
             <dt>Ledger entry</dt>

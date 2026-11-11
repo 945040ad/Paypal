@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { describeEntry } from "@/ledger/describe";
 import type { LedgerEntry, VerifyResult } from "@/ledger/ledger";
@@ -8,11 +9,11 @@ type Export = { length: number; head_hash: string; entries: LedgerEntry[] };
 type Notice = { tone: "ok" | "bad" | "warn"; text: string } | null;
 
 const FAMILY: Record<string, { label: string; chip: string; dot: string }> = {
-  mandate: { label: "Mandate", chip: "bg-foreground text-white", dot: "bg-foreground" },
-  gate: { label: "Gate", chip: "bg-sky-100 text-sky-900", dot: "bg-sky-600" },
-  paypal: { label: "PayPal", chip: "bg-indigo-100 text-indigo-900", dot: "bg-indigo-600" },
-  dispute: { label: "Dispute", chip: "bg-amber-100 text-amber-900", dot: "bg-amber-600" },
-  alarm: { label: "Alarm", chip: "bg-red-100 text-red-900", dot: "bg-red-600" },
+  mandate: { label: "Mandate", chip: "text-foreground", dot: "bg-foreground" },
+  gate: { label: "Gate", chip: "text-secondary", dot: "bg-muted" },
+  paypal: { label: "PayPal", chip: "text-secondary", dot: "bg-muted" },
+  dispute: { label: "Dispute", chip: "text-warn", dot: "bg-warn" },
+  alarm: { label: "Alarm", chip: "text-bad", dot: "bg-bad" },
 };
 
 function familyOf(type: string): keyof typeof FAMILY {
@@ -115,7 +116,7 @@ export default function LedgerPage() {
           <section className="card mt-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="eyebrow">Head hash</p>
+                <p className="text-xs text-muted">Head hash</p>
                 <p data-testid="head-hash" className="mt-1 break-all font-mono text-sm">{data.head_hash}</p>
                 <p className="mt-2 text-sm text-muted">
                   {data.length} {data.length === 1 ? "entry" : "entries"}. The head hash commits to every one of them.
@@ -132,20 +133,20 @@ export default function LedgerPage() {
             </div>
 
             {verify?.ok && (
-              <p data-testid="verify-result" data-ok="true" role="status" className="rise mt-5 flex items-center gap-3 rounded-xl bg-ok px-5 py-3.5 text-base font-semibold text-white shadow-sm">
-                <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm">✓</span>
+              <p data-testid="verify-result" data-ok="true" role="status" className="rise mt-5 flex items-center gap-3 rounded-lg bg-ok px-4 py-3 text-base font-medium text-white">
+                <Check aria-hidden="true" size={18} strokeWidth={1.5} className="shrink-0" />
                 Chain verified. All {verify.length} entries match their hashes and link to the one before.
               </p>
             )}
             {verify && !verify.ok && (
-              <p data-testid="verify-result" data-ok="false" role="alert" className="rise mt-5 flex items-center gap-3 rounded-xl bg-bad px-5 py-3.5 text-base font-semibold text-white shadow-sm">
-                <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm">!</span>
+              <p data-testid="verify-result" data-ok="false" role="alert" className="rise mt-5 flex items-center gap-3 rounded-lg bg-bad px-4 py-3 text-base font-medium text-white">
+                <TriangleAlert aria-hidden="true" size={18} strokeWidth={1.5} className="shrink-0" />
                 Chain broken at entry #{verify.first_bad_seq}. {verify.reason} Nothing from that entry onward can be trusted.
               </p>
             )}
           </section>
 
-          <section className="mt-4 rounded-[0.875rem] border border-dashed border-amber-400 bg-warn-soft p-5">
+          <section className="mt-4 rounded-xl border border-dashed border-line-strong p-5">
             <p className="badge badge-warn">Demo only</p>
             <div className="mt-1 flex flex-wrap items-center justify-between gap-4">
               <p className="max-w-xl text-sm text-muted">
@@ -175,7 +176,8 @@ export default function LedgerPage() {
               <h2 className="text-base font-semibold">Entries, newest first</h2>
               <ul className="flex flex-wrap gap-2 text-xs">
                 {Object.entries(FAMILY).map(([key, f]) => (
-                  <li key={key} className={`rounded-full px-2.5 py-0.5 font-medium ${f.chip}`}>
+                  <li key={key} className={`flex items-center gap-1.5 ${f.chip}`}>
+                    <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${f.dot}`} />
                     {f.label}
                   </li>
                 ))}
@@ -199,12 +201,12 @@ export default function LedgerPage() {
                       data-testid="entry"
                       data-seq={e.seq}
                       data-broken={broken}
-                      className={`relative py-3 pl-10 pr-5 first:rounded-t-[0.875rem] last:rounded-b-[0.875rem] ${broken ? "bg-bad-soft" : ""} ${untrusted ? "opacity-50" : ""}`}
+                      className={`relative py-3 pl-10 pr-5 first:rounded-t-xl last:rounded-b-xl ${broken ? "shadow-[inset_3px_0_0_var(--bad)]" : ""} ${untrusted ? "opacity-50" : ""}`}
                     >
-                      <span aria-hidden="true" className={`absolute left-4 top-[1.15rem] h-2.5 w-2.5 rounded-full ${broken ? "bg-bad" : f.dot}`} />
+                      <span aria-hidden="true" className={`absolute left-4 top-[1.2rem] h-1.5 w-1.5 rounded-full ${broken ? "bg-bad" : f.dot}`} />
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="font-mono text-sm font-semibold">#{e.seq}</span>
-                        <span className={`rounded-full px-2 py-0.5 font-mono text-[0.7rem] font-medium ${f.chip}`}>{e.type}</span>
+                        <span className={`font-mono text-xs ${f.chip}`}>{e.type}</span>
                         <span className="font-mono text-xs text-muted">{time(e.ts)}</span>
                         {broken && <span className="text-xs font-semibold text-bad">does not match its hash</span>}
                         {untrusted && <span className="text-xs text-muted">after the break</span>}

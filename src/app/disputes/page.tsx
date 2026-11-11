@@ -33,9 +33,9 @@ const dollars = (cents: number | null) => (cents == null ? "-" : `$${(cents / 10
 const words = (s: string | null) => (s ?? "-").replaceAll("_", " ").toLowerCase();
 
 const BADGE: Record<Classification, { label: string; tone: string }> = {
-  IN_MANDATE: { label: "Inside the mandate", tone: "bg-ok text-white" },
-  VIOLATION: { label: "Agent broke the mandate", tone: "bg-bad text-white" },
-  UNKNOWN: { label: "Needs a person", tone: "bg-surface-2 text-muted" },
+  IN_MANDATE: { label: "Inside the mandate", tone: "text-ok" },
+  VIOLATION: { label: "Agent broke the mandate", tone: "text-bad" },
+  UNKNOWN: { label: "Needs a person", tone: "text-muted" },
 };
 
 const BUTTON = "btn";
@@ -232,13 +232,13 @@ export default function DisputesPage() {
                   data-testid="dispute-row"
                   data-id={r.dispute_id}
                   onClick={() => open(r.dispute_id)}
-                  className={`w-full rounded-xl border bg-surface p-4 text-left text-sm shadow-sm transition-all hover:-translate-y-0.5 ${selected === r.dispute_id ? "border-accent ring-4 ring-accent/15" : "border-line hover:border-accent"}`}
+                  className={`w-full rounded-xl border p-4 text-left text-sm transition-colors duration-150 ${selected === r.dispute_id ? "border-line-strong bg-surface" : "border-transparent hover:bg-surface-2"}`}
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs">{r.dispute_id}</span>
                     <span className="font-mono">{dollars(r.amount_cents)}</span>
                   </span>
-                  <span className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${BADGE[r.classification].tone}`}>{BADGE[r.classification].label}</span>
+                  <span className={`mt-2 block text-sm font-medium ${BADGE[r.classification].tone}`}>{BADGE[r.classification].label}</span>
                   <span className="mt-1 block text-xs text-muted">
                     {r.status === "RESOLVED" ? `Resolved: ${words(r.outcome)}` : `${words(r.status)}, ${words(r.stage)} stage`}
                   </span>
@@ -258,15 +258,15 @@ export default function DisputesPage() {
             </div>
           )}
           {detail && (
-            <div data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""} className="card rise">
+            <div data-testid="dispute-detail" data-classification={detail.classification} data-status={detail.status ?? ""} className="card">
               <h2 className="font-mono text-xl font-semibold">{detail.dispute_id}</h2>
               <p className="mt-1 text-sm text-muted">
                 Buyer&apos;s reason: {words(detail.reason)}. PayPal status: {words(detail.status)}, {words(detail.stage)} stage.
                 {detail.outcome && ` Outcome: ${words(detail.outcome)}.`}
               </p>
 
-              <div className={`mt-4 rounded-xl border-2 p-5 ${detail.classification === "IN_MANDATE" ? "border-ok bg-ok-soft" : detail.classification === "VIOLATION" ? "border-bad bg-bad-soft" : "border-line bg-surface"}`}>
-                <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${BADGE[detail.classification].tone}`}>{BADGE[detail.classification].label}</span>
+              <div className={`mt-4 rounded-xl border border-l-[3px] border-line p-5 ${detail.classification === "IN_MANDATE" ? "border-l-ok" : detail.classification === "VIOLATION" ? "border-l-bad" : ""}`}>
+                <span className={`text-sm font-semibold ${BADGE[detail.classification].tone}`}>{BADGE[detail.classification].label}</span>
                 <p className="mt-3 text-base font-medium">{detail.classification_reason}</p>
                 <p className="mt-1 text-xs text-muted">Decided by code from the ledger. No AI model takes part in this decision.</p>
               </div>
@@ -298,7 +298,7 @@ export default function DisputesPage() {
               </div>
 
               {!resolved && can("adjudicate") && (
-                <div className="mt-4 rounded-xl border border-dashed border-amber-400 bg-warn-soft p-4">
+                <div className="mt-4 rounded-xl border border-dashed border-line-strong p-4">
                   <p className="text-sm font-semibold text-warn">Simulate PayPal&apos;s decision (sandbox only)</p>
                   <p className="mt-1 text-xs text-muted">In real life PayPal reviews the evidence and decides. The sandbox has no reviewer, so this stands in for one.</p>
                   <div className="mt-3 flex gap-3">
@@ -329,7 +329,7 @@ export default function DisputesPage() {
                 <div className="mt-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold">Evidence PDF</h3>
-                    <a href={`/api/disputes/${detail.dispute_id}/evidence`} target="_blank" rel="noreferrer" className="text-sm font-medium text-accent hover:underline">
+                    <a href={`/api/disputes/${detail.dispute_id}/evidence`} target="_blank" rel="noreferrer" className="text-sm underline decoration-line-strong underline-offset-4 hover:decoration-foreground">
                       Open in a new tab
                     </a>
                   </div>

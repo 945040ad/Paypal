@@ -8,8 +8,8 @@ export type Mode = "ENFORCE" | "OBSERVE";
 export const MODE_EVENT = "gate-mode-changed";
 
 /**
- * The Enforce / Observe switch. It sits in the header of every page, and while the gate is in Observe mode
- * a full-width bar says so, because in that mode nothing is stopped.
+ * The Enforce / Observe switch. It sits in the sidebar of every page, and while the gate is in Observe mode
+ * a bar across the top says so, because in that mode nothing is stopped.
  */
 export function ModeSwitch() {
   const [mode, setMode] = useState<Mode | null>(null);
@@ -44,6 +44,11 @@ export function ModeSwitch() {
     }
   }
 
+  // Lets the page make room for the Observe bar (see globals.css).
+  useEffect(() => {
+    if (mode) document.documentElement.dataset.gate = mode;
+  }, [mode]);
+
   const option = (value: Mode, label: string, activeClass: string) => (
     <button
       type="button"
@@ -52,7 +57,7 @@ export function ModeSwitch() {
       data-testid={`mode-${value}`}
       disabled={state === "loading" || state === "saving"}
       onClick={() => change(value)}
-      className={`rounded-full px-3.5 py-1 text-sm font-semibold transition-colors disabled:cursor-wait ${mode === value ? activeClass : "bg-transparent text-muted hover:text-foreground"}`}
+      className={`h-7 flex-1 rounded-md px-3 text-sm font-medium transition-colors duration-150 disabled:cursor-wait ${mode === value ? activeClass : "text-secondary hover:text-foreground"}`}
     >
       {label}
     </button>
@@ -60,23 +65,30 @@ export function ModeSwitch() {
 
   return (
     <>
-      <div className="flex items-center gap-2.5">
-        <span className="text-xs font-medium text-muted" title="Enforce stops anything outside your rules. Observe only records.">
-          Gate
-        </span>
-        <div role="radiogroup" aria-label="Gate mode" className="flex rounded-full border border-line bg-surface-2 p-0.5">
-          {option("ENFORCE", "Enforce", "bg-ok text-white shadow-sm")}
-          {option("OBSERVE", "Observe", "bg-amber-400 text-black shadow-sm")}
+      <div>
+        <p className="flex items-center justify-between px-0.5 pb-2 text-xs text-muted">
+          <span>Gate mode</span>
+          {state === "loading" && <span>Loading…</span>}
+        </p>
+        <div role="radiogroup" aria-label="Gate mode" className="flex gap-0.5 rounded-lg border border-line bg-surface-3 p-0.5">
+          {option("ENFORCE", "Enforce", "bg-surface text-ok shadow-[0_0_0_1px_var(--line)]")}
+          {option("OBSERVE", "Observe", "bg-surface text-warn shadow-[0_0_0_1px_var(--line)]")}
         </div>
-        {state === "loading" && <span className="text-xs text-muted">Loading…</span>}
+        <p className="hidden px-0.5 pt-2 text-xs leading-relaxed text-muted lg:block">
+          {mode === "OBSERVE" ? "Records what it would have decided. Stops nothing." : "Stops anything outside your signed rules."}
+        </p>
         {state === "error" && (
-          <span role="alert" className="text-xs text-bad">
+          <span role="alert" className="mt-1 block text-xs text-bad">
             Could not read or change the mode. Reload.
           </span>
         )}
       </div>
       {mode === "OBSERVE" && (
-        <div data-testid="observe-banner" role="status" className="absolute inset-x-0 top-full bg-amber-400 px-6 py-1.5 text-center text-sm font-semibold text-black">
+        <div
+          data-testid="observe-banner"
+          role="status"
+          className="fixed inset-x-0 top-0 z-30 flex h-9 items-center justify-center border-b border-line bg-foreground px-6 text-center text-sm font-medium text-background lg:left-64"
+        >
           Observe mode: the gate records what it would have decided but does not stop any payment.
         </div>
       )}
