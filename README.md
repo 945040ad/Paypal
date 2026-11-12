@@ -71,7 +71,7 @@ The model inside the app is Google Gemini through the Vercel AI SDK, behind one 
 
 The model never decides whether a payment is allowed, never moves money, never writes to the ledger and never decides which side a dispute favours. Those are all plain code with tests.
 
-**Tools statement.** Gemini runs inside the app in the three roles above. The code was written with Claude Code (Anthropic), working from a written plan ([PLAN.md](PLAN.md)).
+**Tools statement.** Gemini runs inside the app in the three roles above. The code was written with Claude Code.
 
 ## Connect your own agent (MCP)
 

@@ -1,5 +1,5 @@
 /**
- * Verdict as an MCP server: any MCP client (Claude, Cursor, another agent) can shop through the gate.
+ * Verdict as an MCP server: any MCP client (a coding assistant, another agent) can shop through the gate.
  *
  * The client gets the same powers as the built-in shopping agent and no more. It can search, read a product
  * page, propose a purchase and read the record. It cannot approve an escalated purchase, sign or change the

@@ -1,5 +1,5 @@
 /**
- * The purchase flow from PLAN.md: INTENT -> gate DECISION -> PayPal order (AUTHORIZE) -> authorize ->
+ * The purchase flow of the original plan: INTENT -> gate DECISION -> PayPal order (AUTHORIZE) -> authorize ->
  * re-check against PayPal -> capture, or void on a mismatch. Deterministic code only; no model is involved.
  * Each step saves its progress, so calling a step again resumes instead of repeating a PayPal action.
  */

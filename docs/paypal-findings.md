@@ -1,14 +1,14 @@
 # PayPal findings
 
-What the sandbox and PayPal's docs actually do, where that differs from PLAN.md.
+What the sandbox and PayPal's docs actually do, where that differs from the original plan.
 
 ## Phase 0 (docs read 2026-11-10)
 
-- **`PayPal-Request-Id` retention.** PLAN.md says PayPal keeps the key for 6 hours. The REST requests page
+- **`PayPal-Request-Id` retention.** The original plan says PayPal keeps the key for 6 hours. The REST requests page
   (https://developer.paypal.com/api/rest/requests/) gives an example of retrying "for up to 45 days" and says
   to check each API's reference for support. Not yet measured on the sandbox. Our code stores the key per
   logical action and reuses it, which is correct under either figure.
-- **Webhook event names.** All seven names in PLAN.md match PayPal's event list
+- **Webhook event names.** All seven names in the original plan match PayPal's event list
   (https://developer.paypal.com/api/rest/webhooks/event-names/) exactly.
 - **Webhook URLs.** PayPal delivers only to HTTPS on port 443, and an app can hold at most 10 webhooks.
   Registering a URL twice returns `WEBHOOK_URL_ALREADY_EXISTS`; `npm run webhook:setup` handles that by
@@ -50,7 +50,7 @@ Seller: `sb-cufup53822799@business.example.com` (merchant `Q8AMAAA47MYEE`). Buye
 - `POST /v2/checkout/orders/{id}/capture` with an empty body and `Prefer: return=representation` returns 201; capture ID
   at `purchase_units[0].payments.captures[0].id`, and `custom_id` is echoed on the capture.
 
-### Dispute behaviour that differs from PLAN.md
+### Dispute behaviour that differs from the original plan
 
 1. **HATEOAS rel names use underscores**: `provide_evidence`, `accept_claim`, `send_message`, `make_offer`, `escalate`,
    `provide_supporting_info`. The URL paths use hyphens. Code that checks links must compare against the underscore form.
@@ -117,7 +117,7 @@ All POSTs carried a `PayPal-Request-Id`; none was rejected for it.
 
 Case A took 44 minutes from the buyer opening the case to `RESOLVED`. Case B took 8 minutes.
 
-### More behaviour that differs from PLAN.md
+### More behaviour that differs from the original plan
 
 6. **`adjudicate` and `require-evidence` are refused until their link is offered**, even when status is `UNDER_REVIEW`.
    `UNDER_REVIEW` appeared with three different link sets. Decide by the links, never by the status.
