@@ -53,3 +53,6 @@ next-env.d.ts
 # local working notes
 /CLAUDE.md
 /PLAN.md
+
+# submission bundle (video and Devpost text)
+/submission/
