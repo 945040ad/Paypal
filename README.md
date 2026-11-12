@@ -8,13 +8,13 @@ When an AI agent spends your money and the payment is later disputed, nobody can
 - **Built for:** the PayPal AI Hackathon
 - **License:** MIT
 
-![The dispute desk showing a dispute classified as inside the mandate, with the evidence PDF](docs/screenshots/disputes.png)
+![The Verdict home page: the question it answers, next to the live ledger from the PayPal sandbox](docs/screenshots/overview.png)
 
 ## What it does
 
 1. **Mandate.** The user types spending rules in plain words. An AI model drafts them into fields, the user reviews them, and the browser signs them with a key that never leaves the device.
 2. **Agent.** A shopping agent searches a demo store and proposes purchases. It can only propose. It cannot pay.
-3. **Gate.** Plain code checks every proposal against the signed mandate and answers ALLOW, ESCALATE (ask the user) or BLOCK. In Observe mode it records the decision without stopping the payment.
+3. **Gate.** Plain code checks every proposal against the signed mandate and answers ALLOW, ESCALATE (ask the user) or BLOCK. In Observe mode (the switch in the sidebar) it records the decision without stopping the payment.
 4. **Ledger.** Every step is appended to a hash-chained log. Edit any entry and verification fails from that entry on.
 5. **Dispute desk.** When a buyer disputes a payment in PayPal, code reads the ledger and classifies the dispute.
 
@@ -24,6 +24,8 @@ When an AI agent spends your money and the payment is later disputed, nobody can
 | B. Agent exceeded the mandate | The gate was in Observe mode, the agent overspent, the ledger holds a `VIOLATION` entry | Accepts the claim and refunds in full | `PP-R-BQE-10198182` resolved for the buyer |
 
 Both rows are real sandbox disputes. They ship as demo data, with their real IDs, so you can open them on the Disputes page.
+
+![The dispute desk showing a dispute classified as inside the mandate, with the evidence PDF](docs/screenshots/disputes.png)
 
 ## Try it in two minutes
 
@@ -37,6 +39,8 @@ On the hosted demo, no setup needed:
 Purchases on the hosted demo are paid with a saved sandbox buyer account, so they need no PayPal login. To open a new dispute yourself you need the sandbox buyer login, which is in the Devpost testing notes.
 
 The hosted database is temporary: it resets to the demo data whenever the app redeploys or wakes from sleep.
+
+![The ledger page after pressing Verify the chain: all entries match their hashes](docs/screenshots/ledger.png)
 
 ## PayPal APIs used
 
@@ -152,6 +156,8 @@ src/store/      the demo store, including the product page with the hidden injec
 src/eval/       the independent mandate check used by the eval
 src/seed/       recorded sandbox history used as demo data
 ```
+
+The interface uses [lucide](https://lucide.dev) icons and the [thinking-orbs](https://github.com/Jakubantalik/thinking-orbs) loading animation (MIT).
 
 The gate checks, in order: the mandate's signature, expiry and revocation; merchant; category; quantity; per-purchase cap; total budget (spent plus reserved, which is what stops split purchases); and the approval threshold. Money is integer cents everywhere and becomes PayPal's decimal strings only at the API boundary.
 
